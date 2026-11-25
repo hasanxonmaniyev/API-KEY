@@ -5,3 +5,6 @@ node_modules/
 *.log
 local_dev_store.json
 client/dist/
+uploads/*
+!uploads/.gitkeep
+

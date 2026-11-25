@@ -23,7 +23,7 @@ function validateAndCastData(templateFields, inputData) {
       continue;
     }
 
-    // Type casting and validation
+    // Type casting and validation for universal types
     switch (field.type) {
       case 'number': {
         const num = Number(value);
@@ -46,6 +46,33 @@ function validateAndCastData(templateFields, inputData) {
         }
         break;
       }
+      case 'image': {
+        // Can be a URL, data URL, or file path
+        sanitized[key] = String(value).trim();
+        break;
+      }
+      case 'email': {
+        const emailStr = String(value).trim();
+        if (isRequired && !emailStr.includes('@')) {
+          errors.push(`Field '${field.name}' must be a valid email`);
+        } else {
+          sanitized[key] = emailStr;
+        }
+        break;
+      }
+      case 'tags': {
+        if (Array.isArray(value)) {
+          sanitized[key] = value.map(String);
+        } else if (typeof value === 'string') {
+          sanitized[key] = value.split(',').map(s => s.trim()).filter(Boolean);
+        } else {
+          sanitized[key] = [];
+        }
+        break;
+      }
+      case 'color':
+      case 'date':
+      case 'textarea':
       case 'text':
       default: {
         sanitized[key] = String(value);

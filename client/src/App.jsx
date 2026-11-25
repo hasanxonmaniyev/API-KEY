@@ -7,17 +7,16 @@ import ApiTester from './components/ApiTester';
 import Documentation from './components/Documentation';
 import ApiResultModal from './components/ApiResultModal';
 import { request } from './utils/api';
-import { Sparkles, Terminal, Layers, Code, Heart, Github } from 'lucide-react';
+import { Sparkles, Terminal, Layers, Code, Heart, Github, Rocket, ArrowRight } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('generator'); // generator | admin | explorer | tester | docs
+  const [activeTab, setActiveTab] = useState('generator');
   const [templates, setTemplates] = useState([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   const [stats, setStats] = useState(null);
   const [modalResult, setModalResult] = useState(null);
-  const [testerProps, setTesterProps] = useState({ url: '/api/users/1', method: 'GET' });
+  const [testerProps, setTesterProps] = useState({ url: '/api/data/1', method: 'GET' });
 
-  // Load templates and stats from backend
   const loadData = async () => {
     try {
       const [tplRes, statsRes] = await Promise.all([
@@ -44,13 +43,11 @@ export default function App() {
     loadData();
   }, []);
 
-  // Handler when student generates API from form
   const handleApiGenerated = (result) => {
     setModalResult(result);
-    loadData(); // refresh stats & counts
+    loadData();
   };
 
-  // Handler to jump to Tester from Result Modal or List
   const handleTestApi = ({ url, method = 'GET', id }) => {
     setTesterProps({ url, method });
     setModalResult(null);
@@ -58,7 +55,12 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0a0d14] text-slate-100">
+    <div className="relative min-h-screen flex flex-col bg-[#070a12] text-slate-100 overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+      {/* Ambient background glows */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-indigo-600/15 via-purple-600/5 to-transparent blur-3xl pointer-events-none -z-10" />
+      <div className="fixed top-1/3 -left-48 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="fixed top-2/3 -right-48 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -z-10" />
+
       {/* Navigation */}
       <Navbar
         activeTab={activeTab}
@@ -68,21 +70,23 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         {activeTab === 'generator' && (
           <div className="space-y-8 animate-in fade-in duration-300">
-            {/* Quick Hero Banner */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900/30 via-dark-card to-violet-950/20 border border-indigo-500/20 p-6 sm:p-8">
-              <div className="max-w-3xl space-y-3">
-                <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Educational API Platform for Students</span>
+            {/* Elegant Hero Banner */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-950/40 via-slate-900/80 to-purple-950/40 border border-white/[0.08] p-7 sm:p-10 shadow-2xl backdrop-blur-xl">
+              <div className="max-w-3xl space-y-4">
+                <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-bold tracking-wide">
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Educational REST API Platform with Photos & Universal Data</span>
                 </div>
-                <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
-                  Create your own live REST API in seconds.
+
+                <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
+                  Design, build & test <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">real APIs</span> in seconds.
                 </h1>
-                <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-                  Fill out the dynamic form below, receive your unique auto-incremented API ID, and copy ready-to-use JavaScript <code className="text-indigo-300 font-mono font-medium">fetch()</code> code to test in your web applications.
+
+                <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl">
+                  Add photos, custom properties, numbers, and tags. Get an individual auto-incremented API ID with real PostgreSQL persistence to practice JavaScript <code className="text-indigo-300 font-mono font-medium px-1.5 py-0.5 rounded bg-white/[0.05]">fetch()</code> immediately.
                 </p>
               </div>
             </div>
@@ -140,23 +144,23 @@ export default function App() {
         />
       )}
 
-      {/* Footer */}
-      <footer className="border-t border-dark-border py-6 bg-dark-card/50 text-xs text-slate-500">
+      {/* Elegant Footer */}
+      <footer className="border-t border-white/[0.06] py-8 bg-slate-950/60 backdrop-blur-xl text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-2">
-            <span className="font-semibold text-slate-400">API Builder — Educational Platform</span>
+            <span className="font-bold text-slate-300">API Builder Edu</span>
             <span>•</span>
-            <span>Built for programming students</span>
+            <span>Universal Dynamic REST API Generator for Students</span>
           </div>
 
           <div className="flex items-center space-x-4">
-            <span className="inline-flex items-center space-x-1">
+            <span className="inline-flex items-center space-x-1.5">
               <span>Database:</span>
-              <strong className="text-indigo-400">PostgreSQL</strong>
+              <strong className="text-indigo-400">PostgreSQL (JSONB)</strong>
             </span>
             <span>•</span>
-            <span className="inline-flex items-center space-x-1">
-              <span>Deployable to:</span>
+            <span className="inline-flex items-center space-x-1.5">
+              <span>Hostable on:</span>
               <strong className="text-slate-300">Railway & Vercel</strong>
             </span>
           </div>

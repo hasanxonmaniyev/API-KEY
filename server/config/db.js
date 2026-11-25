@@ -11,16 +11,18 @@ const localStoreFile = path.join(__dirname, '..', 'local_dev_store.json');
 const defaultTemplates = [
   {
     id: 1,
-    name: 'Student / User Profile',
-    description: 'Standard student profile API with personal and career details',
+    name: 'Student & Developer Profile (with Photo)',
+    description: 'Personal profile with avatar image, career details and skills for portfolio apps',
     fields: [
-      { id: 'firstName', key: 'firstName', name: 'First Name', type: 'text', required: true, defaultValue: 'John' },
-      { id: 'lastName', key: 'lastName', name: 'Last Name', type: 'text', required: true, defaultValue: 'Doe' },
-      { id: 'age', key: 'age', name: 'Age', type: 'number', required: true, defaultValue: 22 },
-      { id: 'carName', key: 'carName', name: 'Car Name', type: 'text', required: false, defaultValue: 'BMW M3' },
-      { id: 'fianceName', key: 'fianceName', name: 'Fiancé Name', type: 'text', required: false, defaultValue: 'Sarah' },
+      { id: 'avatar', key: 'avatar', name: 'Profile Photo', type: 'image', required: false, defaultValue: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80' },
+      { id: 'firstName', key: 'firstName', name: 'First Name', type: 'text', required: true, defaultValue: 'Hasan' },
+      { id: 'lastName', key: 'lastName', name: 'Last Name', type: 'text', required: true, defaultValue: 'Maniyev' },
+      { id: 'age', key: 'age', name: 'Age', type: 'number', required: true, defaultValue: 23 },
       { id: 'profession', key: 'profession', name: 'Profession', type: 'text', required: true, defaultValue: 'Full-Stack Developer' },
-      { id: 'city', key: 'city', name: 'City', type: 'text', required: true, defaultValue: 'Tashkent' }
+      { id: 'email', key: 'email', name: 'Email Address', type: 'email', required: false, defaultValue: 'hasan@example.com' },
+      { id: 'city', key: 'city', name: 'City', type: 'text', required: true, defaultValue: 'Tashkent' },
+      { id: 'carName', key: 'carName', name: 'Car Name', type: 'text', required: false, defaultValue: 'BMW M5 Competition' },
+      { id: 'fianceName', key: 'fianceName', name: 'Fiancé Name', type: 'text', required: false, defaultValue: 'Zulayho' }
     ],
     is_published: true,
     created_at: new Date().toISOString(),
@@ -28,14 +30,32 @@ const defaultTemplates = [
   },
   {
     id: 2,
-    name: 'E-Commerce Product Catalog',
-    description: 'Dynamic product API for practicing shopping cart & store integrations',
+    name: 'E-Commerce Product Catalog (with Image)',
+    description: 'Dynamic products with image preview, price, brand, rating and stock status',
     fields: [
+      { id: 'productImage', key: 'productImage', name: 'Product Image', type: 'image', required: true, defaultValue: 'https://images.unsplash.com/photo-1511707171634-5f897ff02560?auto=format&fit=crop&w=600&q=80' },
       { id: 'productName', key: 'productName', name: 'Product Name', type: 'text', required: true, defaultValue: 'iPhone 17 Pro' },
-      { id: 'price', key: 'price', name: 'Price', type: 'number', required: true, defaultValue: 1199 },
-      { id: 'color', key: 'color', name: 'Color', type: 'text', required: false, defaultValue: 'Space Titanium' },
+      { id: 'price', key: 'price', name: 'Price ($)', type: 'number', required: true, defaultValue: 1199 },
       { id: 'brand', key: 'brand', name: 'Brand', type: 'text', required: true, defaultValue: 'Apple' },
-      { id: 'inStock', key: 'inStock', name: 'In Stock', type: 'boolean', required: true, defaultValue: true }
+      { id: 'color', key: 'color', name: 'Color Accent', type: 'color', required: false, defaultValue: '#4f46e5' },
+      { id: 'inStock', key: 'inStock', name: 'In Stock', type: 'boolean', required: true, defaultValue: true },
+      { id: 'description', key: 'description', name: 'Product Description', type: 'textarea', required: false, defaultValue: 'Next-generation flagship smartphone with titanium body.' }
+    ],
+    is_published: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: 3,
+    name: 'Cinema & Movie Hub (with Poster)',
+    description: 'Movie card API with poster image, release year, rating and genre tags',
+    fields: [
+      { id: 'poster', key: 'poster', name: 'Movie Poster', type: 'image', required: true, defaultValue: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80' },
+      { id: 'title', key: 'title', name: 'Movie Title', type: 'text', required: true, defaultValue: 'Interstellar' },
+      { id: 'director', key: 'director', name: 'Director', type: 'text', required: true, defaultValue: 'Christopher Nolan' },
+      { id: 'year', key: 'year', name: 'Release Year', type: 'number', required: true, defaultValue: 2014 },
+      { id: 'rating', key: 'rating', name: 'IMDb Rating', type: 'number', required: true, defaultValue: 8.7 },
+      { id: 'isAvailable', key: 'isAvailable', name: 'Available to Stream', type: 'boolean', required: true, defaultValue: true }
     ],
     is_published: true,
     created_at: new Date().toISOString(),

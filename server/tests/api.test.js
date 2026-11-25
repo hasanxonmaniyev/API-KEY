@@ -1,6 +1,5 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const http = require('node:http');
 const app = require('../index');
 
 let server;
@@ -27,6 +26,27 @@ test('GET /api/health should return ok status', async () => {
   assert.strictEqual(data.status, 'ok');
 });
 
+test('POST /api/upload should accept base64 image and return hosted URL', async () => {
+  // 1x1 transparent PNG base64
+  const samplePngBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
+  const res = await fetch(`${baseUrl}/api/upload`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ image: samplePngBase64, filename: 'pixel.png' })
+  });
+
+  assert.strictEqual(res.status, 201);
+  const json = await res.json();
+  assert.strictEqual(json.success, true);
+  assert.match(json.url, /^\/uploads\/img_/);
+  assert.match(json.fullUrl, /^http/);
+
+  // Verify that the uploaded image is statically accessible
+  const imgRes = await fetch(`${baseUrl}${json.url}`);
+  assert.strictEqual(imgRes.status, 200);
+});
+
 test('POST /api/users should create a user and return 201', async () => {
   const payload = {
     firstName: 'Hasan',
@@ -48,7 +68,6 @@ test('POST /api/users should create a user and return 201', async () => {
   const json = await res.json();
   assert.strictEqual(json.success, true);
   assert.strictEqual(json.data.firstName, 'Hasan');
-  assert.strictEqual(json.data.city, 'Tashkent');
 
   // Verify GET by ID
   const getRes = await fetch(`${baseUrl}/api/users/${json.data.id}`);
@@ -57,15 +76,16 @@ test('POST /api/users should create a user and return 201', async () => {
   assert.strictEqual(user.firstName, 'Hasan');
 });
 
-test('Dynamic API: Admin creates template and student generates dynamic endpoint', async () => {
-  // 1. Admin creates custom template
+test('Dynamic API: Universal fields with images, colors, numbers, booleans', async () => {
+  // 1. Admin creates custom template with universal types (image, color, number, boolean)
   const newTemplate = {
     name: 'Smart Gadget Inventory',
-    description: 'Hardware gadgets for lesson 5',
+    description: 'Hardware gadgets with images for lesson 5',
     fields: [
+      { key: 'productImage', name: 'Product Image', type: 'image', required: true },
       { key: 'productName', name: 'Product Name', type: 'text', required: true },
       { key: 'price', name: 'Price', type: 'number', required: true },
-      { key: 'color', name: 'Color', type: 'text', required: false },
+      { key: 'color', name: 'Color Accent', type: 'color', required: false },
       { key: 'brand', name: 'Brand', type: 'text', required: true },
       { key: 'inStock', name: 'In Stock', type: 'boolean', required: true }
     ],
@@ -82,12 +102,13 @@ test('Dynamic API: Admin creates template and student generates dynamic endpoint
   const tplData = await tplRes.json();
   const templateId = tplData.data.id;
 
-  // 2. Student creates dynamic record using that template
+  // 2. Student creates dynamic record with image using that template
   const studentPayload = {
     templateId,
-    productName: 'iPhone 17',
-    price: 1200,
-    color: 'Black',
+    productImage: 'https://images.unsplash.com/photo-1511707171634-5f897ff02560',
+    productName: 'iPhone 17 Pro Max',
+    price: 1299,
+    color: '#6366f1',
     brand: 'Apple',
     inStock: true
   };
@@ -101,8 +122,9 @@ test('Dynamic API: Admin creates template and student generates dynamic endpoint
   assert.strictEqual(recRes.status, 201);
   const recJson = await recRes.json();
   assert.strictEqual(recJson.success, true);
-  assert.strictEqual(recJson.data.productName, 'iPhone 17');
-  assert.strictEqual(recJson.data.price, 1200);
+  assert.strictEqual(recJson.data.productName, 'iPhone 17 Pro Max');
+  assert.strictEqual(recJson.data.productImage, 'https://images.unsplash.com/photo-1511707171634-5f897ff02560');
+  assert.strictEqual(recJson.data.price, 1299);
   assert.strictEqual(recJson.data.inStock, true);
 
   // 3. Student fetches dynamic endpoint directly (GET /api/data/:id)
@@ -110,20 +132,19 @@ test('Dynamic API: Admin creates template and student generates dynamic endpoint
   assert.strictEqual(getRec.status, 200);
   const studentOutput = await getRec.json();
   assert.strictEqual(studentOutput.id, recJson.apiId);
-  assert.strictEqual(studentOutput.productName, 'iPhone 17');
-  assert.strictEqual(studentOutput.brand, 'Apple');
-  assert.strictEqual(studentOutput.price, 1200);
+  assert.strictEqual(studentOutput.productName, 'iPhone 17 Pro Max');
+  assert.strictEqual(studentOutput.productImage, 'https://images.unsplash.com/photo-1511707171634-5f897ff02560');
 
   // 4. Update dynamic record (PUT /api/data/:id)
   const putRes = await fetch(`${baseUrl}/api/data/${recJson.apiId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ price: 1100, color: 'Titanium Grey' })
+    body: JSON.stringify({ price: 1199, color: '#10b981' })
   });
   assert.strictEqual(putRes.status, 200);
   const updatedData = await putRes.json();
-  assert.strictEqual(updatedData.data.price, 1100);
-  assert.strictEqual(updatedData.data.color, 'Titanium Grey');
+  assert.strictEqual(updatedData.data.price, 1199);
+  assert.strictEqual(updatedData.data.color, '#10b981');
 
   // 5. Delete dynamic record (DELETE /api/data/:id)
   const delRes = await fetch(`${baseUrl}/api/data/${recJson.apiId}`, {

@@ -44,3 +44,27 @@ export async function request(url, options = {}) {
     data
   };
 }
+
+export async function uploadImage(fileOrBase64) {
+  let base64 = fileOrBase64;
+
+  if (fileOrBase64 instanceof File) {
+    base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(fileOrBase64);
+    });
+  }
+
+  const res = await request('/api/upload', {
+    method: 'POST',
+    body: JSON.stringify({ image: base64 })
+  });
+
+  if (!res.ok) {
+    throw new Error(res.data?.message || 'Failed to upload image');
+  }
+
+  return res.data;
+}

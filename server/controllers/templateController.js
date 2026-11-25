@@ -17,8 +17,9 @@ function validateTemplate(body) {
       if (!field.key || String(field.key).trim() === '') {
         errors.push(`Field #${index + 1} must have a valid key (JSON property name)`);
       }
-      if (!['text', 'number', 'boolean'].includes(field.type)) {
-        errors.push(`Field #${index + 1} (${field.name || 'unnamed'}) type must be 'text', 'number', or 'boolean'`);
+      const allowedTypes = ['text', 'number', 'boolean', 'image', 'email', 'date', 'color', 'textarea', 'tags'];
+      if (!allowedTypes.includes(field.type)) {
+        errors.push(`Field #${index + 1} (${field.name || 'unnamed'}) type '${field.type}' is invalid. Allowed: ${allowedTypes.join(', ')}`);
       }
     });
   }
