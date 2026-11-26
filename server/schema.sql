@@ -85,5 +85,109 @@ VALUES
 )
 ON CONFLICT (id) DO NOTHING;
 
--- Reset sequence for templates
-SELECT setval('templates_id_seq', (SELECT COALESCE(MAX(id), 1) FROM templates));
+-- 4. Collections Table (Dars uyga vazifalari: o'quvchilar, mahsulotlar va buyurtmalar ro'yxati)
+CREATE TABLE IF NOT EXISTS collections (
+  id SERIAL PRIMARY KEY,
+  slug VARCHAR(100) UNIQUE,
+  title VARCHAR(150) NOT NULL,
+  category VARCHAR(50) DEFAULT 'students',
+  description TEXT,
+  items JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Seed Skyline Education Students Collection
+INSERT INTO collections (id, slug, title, category, description, items)
+VALUES
+(
+  1,
+  'oquvchilar',
+  'Skyline Education — O''quvchilar Ro''yxati',
+  'students',
+  'Frontend uyga vazifasi uchun to''liq o''quvchilar ro''yxati va faollik statistikasi',
+  '[
+    {
+      "id": 1,
+      "firstName": "Ali",
+      "lastName": "Valiyev",
+      "name": "Ali Valiyev",
+      "email": "ali@gmail.com",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=AliValiyev&backgroundColor=c0aede",
+      "status": "Faol",
+      "isActive": true,
+      "age": 21,
+      "profession": "Frontend Dasturchi",
+      "city": "Toshkent"
+    },
+    {
+      "id": 2,
+      "firstName": "Madina",
+      "lastName": "Karimova",
+      "name": "Madina Karimova",
+      "email": "madina@gmail.com",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=MadinaKarimova&backgroundColor=b6e3f4",
+      "status": "Faol",
+      "isActive": true,
+      "age": 20,
+      "profession": "UI/UX Dizayner",
+      "city": "Samarqand"
+    },
+    {
+      "id": 3,
+      "firstName": "Behzod",
+      "lastName": "Raximov",
+      "name": "Behzod Raximov",
+      "email": "behzod@gmail.com",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=BehzodRaximov&backgroundColor=ffd5dc",
+      "status": "Fa''olsiz",
+      "isActive": false,
+      "age": 23,
+      "profession": "Backend Dasturchi",
+      "city": "Buxoro"
+    },
+    {
+      "id": 4,
+      "firstName": "Sardor",
+      "lastName": "To''xtayev",
+      "name": "Sardor To''xtayev",
+      "email": "sardor@gmail.com",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=SardorToxtayev&backgroundColor=d1d4f9",
+      "status": "Faol",
+      "isActive": true,
+      "age": 22,
+      "profession": "Full-Stack Muhandis",
+      "city": "Farg''ona"
+    },
+    {
+      "id": 5,
+      "firstName": "Dilnoza",
+      "lastName": "Azimova",
+      "name": "Dilnoza Azimova",
+      "email": "dilnoza@gmail.com",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=DilnozaAzimova&backgroundColor=ffdfbf",
+      "status": "Faol",
+      "isActive": true,
+      "age": 19,
+      "profession": "Mobil Dasturchi",
+      "city": "Toshkent"
+    },
+    {
+      "id": 6,
+      "firstName": "Jasur",
+      "lastName": "Mirzayev",
+      "name": "Jasur Mirzayev",
+      "email": "jasur@gmail.com",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=JasurMirzayev&backgroundColor=c0aede",
+      "status": "Fa''olsiz",
+      "isActive": false,
+      "age": 24,
+      "profession": "QA Muhandis",
+      "city": "Andijon"
+    }
+  ]'::jsonb
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- Reset sequence for collections
+SELECT setval('collections_id_seq', (SELECT COALESCE(MAX(id), 1) FROM collections));

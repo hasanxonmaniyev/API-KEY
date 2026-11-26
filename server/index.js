@@ -8,6 +8,7 @@ const usersRoute = require('./routes/users');
 const templatesRoute = require('./routes/templates');
 const dataRoute = require('./routes/data');
 const statsRoute = require('./routes/stats');
+const collectionsRoute = require('./routes/collections');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -100,6 +101,7 @@ app.use('/api/users', usersRoute);
 app.use('/api/templates', templatesRoute);
 app.use('/api/data', dataRoute);
 app.use('/api/stats', statsRoute);
+app.use('/api/collections', collectionsRoute);
 
 // Serve frontend build if present (for single Railway service deployments)
 const clientDistPath = path.join(__dirname, '..', 'client', 'dist');

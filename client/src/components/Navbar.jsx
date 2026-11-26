@@ -1,13 +1,14 @@
 import React from 'react';
-import { Sparkles, Terminal, Layers, BookOpen, Activity, Database, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Terminal, Layers, BookOpen, Activity, Database, CheckCircle2, GraduationCap } from 'lucide-react';
 
 export default function Navbar({ activeTab, setActiveTab, stats, onRefreshStats }) {
   const tabs = [
+    { id: 'homework', label: 'Dars Vazifalari', icon: GraduationCap },
     { id: 'generator', label: 'API Yaratish', icon: Sparkles },
     { id: 'explorer', label: 'Barcha API\'lar', icon: Terminal, badge: stats?.totalApisGenerated },
     { id: 'admin', label: 'Admin Konstruktor', icon: Layers },
     { id: 'tester', label: 'API Tester', icon: Activity },
-    { id: 'docs', label: 'Fetch API Qo\'llanma', icon: BookOpen }
+    { id: 'docs', label: 'Fetch Qo\'llanma', icon: BookOpen }
   ];
 
   return (
@@ -17,7 +18,7 @@ export default function Navbar({ activeTab, setActiveTab, stats, onRefreshStats 
           {/* Logo & Tizim nomi */}
           <div 
             className="flex items-center space-x-3 cursor-pointer select-none" 
-            onClick={() => setActiveTab('generator')}
+            onClick={() => setActiveTab('homework')}
           >
             <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-sm">
               <Terminal className="w-5 h-5 stroke-[2.2]" />
@@ -29,16 +30,16 @@ export default function Navbar({ activeTab, setActiveTab, stats, onRefreshStats 
                   API Builder
                 </span>
                 <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">
-                  Ta'lim Tizimi
+                  Edu Edition
                 </span>
               </div>
               <p className="text-xs text-slate-500 font-normal hidden sm:block">
-                O'quvchilar uchun individual REST API generatsiya platformasi
+                Dasturlash o'quvchilari uchun jonli REST API platformasi
               </p>
             </div>
           </div>
 
-          {/* Navigatsiya Menyusi (Soddalashtirilgan va Tizim ko'rinishida) */}
+          {/* Navigatsiya Menyusi */}
           <nav className="hidden md:flex items-center space-x-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/80">
             {tabs.map((tab) => {
               const Icon = tab.icon;

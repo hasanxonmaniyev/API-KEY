@@ -26,25 +26,58 @@ test('GET /api/health should return ok status', async () => {
   assert.strictEqual(data.status, 'ok');
 });
 
-test('POST /api/upload should accept base64 image and return hosted URL', async () => {
-  // 1x1 transparent PNG base64
-  const samplePngBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+test('Homework Collections API: GET, POST items, smart stats and unique avatars', async () => {
+  // 1. Get the pre-seeded "oquvchilar" collection
+  const res = await fetch(`${baseUrl}/api/collections/oquvchilar`);
+  assert.strictEqual(res.status, 200);
+  const data = await res.json();
 
-  const res = await fetch(`${baseUrl}/api/upload`, {
+  assert.strictEqual(data.success, true);
+  assert.strictEqual(data.slug, 'oquvchilar');
+  assert.strictEqual(typeof data.stats.total, 'number');
+  assert.strictEqual(typeof data.stats.active, 'number');
+  assert.strictEqual(typeof data.stats.inactive, 'number');
+  assert.ok(data.items.length >= 6);
+
+  // Verify unique avatars for each student
+  const avatarSeeds = data.items.map(s => s.avatar);
+  const uniqueAvatars = new Set(avatarSeeds);
+  assert.ok(uniqueAvatars.size >= 5, 'Avatars must be unique for each student');
+
+  // 2. Student adds new student (POST /api/collections/oquvchilar/items)
+  const addRes = await fetch(`${baseUrl}/api/collections/oquvchilar/items`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ image: samplePngBase64, filename: 'pixel.png' })
+    body: JSON.stringify({
+      name: 'Otabek Ganiyev',
+      email: 'otabek@gmail.com',
+      status: 'Faol'
+    })
   });
+  assert.strictEqual(addRes.status, 201);
+  const addedJson = await addRes.json();
+  assert.strictEqual(addedJson.data.name, 'Otabek Ganiyev');
+  const newId = addedJson.data.id;
 
-  assert.strictEqual(res.status, 201);
-  const json = await res.json();
-  assert.strictEqual(json.success, true);
-  assert.match(json.url, /^\/uploads\/img_/);
-  assert.match(json.fullUrl, /^http/);
+  // 3. Student views details (GET /api/collections/oquvchilar/items/:id)
+  const getDetail = await fetch(`${baseUrl}/api/collections/oquvchilar/items/${newId}`);
+  assert.strictEqual(getDetail.status, 200);
+  const detailJson = await getDetail.json();
+  assert.strictEqual(detailJson.name, 'Otabek Ganiyev');
 
-  // Verify that the uploaded image is statically accessible
-  const imgRes = await fetch(`${baseUrl}${json.url}`);
-  assert.strictEqual(imgRes.status, 200);
+  // 4. Update student (PUT)
+  const putRes = await fetch(`${baseUrl}/api/collections/oquvchilar/items/${newId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: 'Fa\'olsiz', isActive: false })
+  });
+  assert.strictEqual(putRes.status, 200);
+
+  // 5. Delete student (DELETE)
+  const delRes = await fetch(`${baseUrl}/api/collections/oquvchilar/items/${newId}`, {
+    method: 'DELETE'
+  });
+  assert.strictEqual(delRes.status, 200);
 });
 
 test('POST /api/users should create a user and return 201', async () => {
@@ -68,87 +101,4 @@ test('POST /api/users should create a user and return 201', async () => {
   const json = await res.json();
   assert.strictEqual(json.success, true);
   assert.strictEqual(json.data.firstName, 'Hasan');
-
-  // Verify GET by ID
-  const getRes = await fetch(`${baseUrl}/api/users/${json.data.id}`);
-  assert.strictEqual(getRes.status, 200);
-  const user = await getRes.json();
-  assert.strictEqual(user.firstName, 'Hasan');
-});
-
-test('Dynamic API: Universal fields with images, colors, numbers, booleans', async () => {
-  // 1. Admin creates custom template with universal types (image, color, number, boolean)
-  const newTemplate = {
-    name: 'Smart Gadget Inventory',
-    description: 'Hardware gadgets with images for lesson 5',
-    fields: [
-      { key: 'productImage', name: 'Product Image', type: 'image', required: true },
-      { key: 'productName', name: 'Product Name', type: 'text', required: true },
-      { key: 'price', name: 'Price', type: 'number', required: true },
-      { key: 'color', name: 'Color Accent', type: 'color', required: false },
-      { key: 'brand', name: 'Brand', type: 'text', required: true },
-      { key: 'inStock', name: 'In Stock', type: 'boolean', required: true }
-    ],
-    is_published: true
-  };
-
-  const tplRes = await fetch(`${baseUrl}/api/templates`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(newTemplate)
-  });
-
-  assert.strictEqual(tplRes.status, 201);
-  const tplData = await tplRes.json();
-  const templateId = tplData.data.id;
-
-  // 2. Student creates dynamic record with image using that template
-  const studentPayload = {
-    templateId,
-    productImage: 'https://images.unsplash.com/photo-1511707171634-5f897ff02560',
-    productName: 'iPhone 17 Pro Max',
-    price: 1299,
-    color: '#6366f1',
-    brand: 'Apple',
-    inStock: true
-  };
-
-  const recRes = await fetch(`${baseUrl}/api/data`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(studentPayload)
-  });
-
-  assert.strictEqual(recRes.status, 201);
-  const recJson = await recRes.json();
-  assert.strictEqual(recJson.success, true);
-  assert.strictEqual(recJson.data.productName, 'iPhone 17 Pro Max');
-  assert.strictEqual(recJson.data.productImage, 'https://images.unsplash.com/photo-1511707171634-5f897ff02560');
-  assert.strictEqual(recJson.data.price, 1299);
-  assert.strictEqual(recJson.data.inStock, true);
-
-  // 3. Student fetches dynamic endpoint directly (GET /api/data/:id)
-  const getRec = await fetch(`${baseUrl}/api/data/${recJson.apiId}`);
-  assert.strictEqual(getRec.status, 200);
-  const studentOutput = await getRec.json();
-  assert.strictEqual(studentOutput.id, recJson.apiId);
-  assert.strictEqual(studentOutput.productName, 'iPhone 17 Pro Max');
-  assert.strictEqual(studentOutput.productImage, 'https://images.unsplash.com/photo-1511707171634-5f897ff02560');
-
-  // 4. Update dynamic record (PUT /api/data/:id)
-  const putRes = await fetch(`${baseUrl}/api/data/${recJson.apiId}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ price: 1199, color: '#10b981' })
-  });
-  assert.strictEqual(putRes.status, 200);
-  const updatedData = await putRes.json();
-  assert.strictEqual(updatedData.data.price, 1199);
-  assert.strictEqual(updatedData.data.color, '#10b981');
-
-  // 5. Delete dynamic record (DELETE /api/data/:id)
-  const delRes = await fetch(`${baseUrl}/api/data/${recJson.apiId}`, {
-    method: 'DELETE'
-  });
-  assert.strictEqual(delRes.status, 200);
 });

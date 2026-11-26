@@ -6,16 +6,17 @@ import GeneratedApisList from './components/GeneratedApisList';
 import ApiTester from './components/ApiTester';
 import Documentation from './components/Documentation';
 import ApiResultModal from './components/ApiResultModal';
+import HomeworkCollections from './components/HomeworkCollections';
 import { request } from './utils/api';
-import { Sparkles, Terminal, Layers, Code, Heart, Github, Rocket, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Sparkles, Terminal, Layers, Code, Heart, Github, Rocket, ArrowRight, ShieldCheck, GraduationCap } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('generator');
+  const [activeTab, setActiveTab] = useState('homework'); // 'homework' | 'generator' | 'explorer' | 'admin' | 'tester' | 'docs'
   const [templates, setTemplates] = useState([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   const [stats, setStats] = useState(null);
   const [modalResult, setModalResult] = useState(null);
-  const [testerProps, setTesterProps] = useState({ url: '/api/data/1', method: 'GET' });
+  const [testerProps, setTesterProps] = useState({ url: '/api/collections/oquvchilar', method: 'GET' });
 
   const loadData = async () => {
     try {
@@ -66,27 +67,33 @@ export default function App() {
 
       {/* Asosiy Ish Maydoni */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 1. Dars Vazifalari (Homework APIs) - Asosiy ustuvor bo'lim */}
+        {activeTab === 'homework' && (
+          <div className="animate-in fade-in duration-200">
+            <HomeworkCollections onTestApi={handleTestApi} />
+          </div>
+        )}
+
+        {/* 2. Individual API Generatori */}
         {activeTab === 'generator' && (
-          <div className="space-y-6">
-            {/* Tizim Sarlavhasi (Banner) */}
+          <div className="space-y-6 animate-in fade-in duration-200">
             <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs">
               <div className="max-w-3xl space-y-2">
                 <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-md bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Dasturlash Ta'limi uchun REST API Tizimi</span>
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Individual API Endpoint Generatori</span>
                 </div>
 
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                  O'quvchilar uchun individual REST API generatori
+                  Har bir talaba uchun o'zining shaxsiy REST API'si
                 </h1>
 
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  O'zingiz yoki dars mavzuingizga mos ma'lumotlarni to'ldiring, tayyor mashina va o'quvchi rasmlarini bitta bosishda tanlang. Baza har bir talabaga individual <code className="text-indigo-700 font-mono font-bold bg-slate-100 px-1 py-0.5 rounded">ID</code> va jonli endpoint generatsiya qilib beradi.
+                  O'zingizga mos ma'lumotlarni to'ldiring, tayyor mashina va o'quvchi rasmlarini bitta bosishda tanlang. Baza sizga unikal <code className="text-indigo-700 font-mono font-bold bg-slate-100 px-1 py-0.5 rounded">ID</code> va jonli endpoint generatsiya qilib beradi.
                 </p>
               </div>
             </div>
 
-            {/* Dinamik Forma */}
             <DynamicForm
               templates={templates}
               selectedTemplateId={selectedTemplateId}
@@ -96,8 +103,9 @@ export default function App() {
           </div>
         )}
 
+        {/* 3. Barcha Yaratilgan API'lar */}
         {activeTab === 'explorer' && (
-          <div>
+          <div className="animate-in fade-in duration-200">
             <GeneratedApisList
               onTestApi={handleTestApi}
               onViewResult={setModalResult}
@@ -105,8 +113,9 @@ export default function App() {
           </div>
         )}
 
+        {/* 4. Admin Konstruktor */}
         {activeTab === 'admin' && (
-          <div>
+          <div className="animate-in fade-in duration-200">
             <TemplateBuilder
               templates={templates}
               onTemplatesUpdated={loadData}
@@ -114,8 +123,9 @@ export default function App() {
           </div>
         )}
 
+        {/* 5. API Tester */}
         {activeTab === 'tester' && (
-          <div>
+          <div className="animate-in fade-in duration-200">
             <ApiTester
               initialUrl={testerProps.url}
               initialMethod={testerProps.method}
@@ -123,8 +133,9 @@ export default function App() {
           </div>
         )}
 
+        {/* 6. Fetch API Qo'llanma */}
         {activeTab === 'docs' && (
-          <div>
+          <div className="animate-in fade-in duration-200">
             <Documentation />
           </div>
         )}
@@ -145,7 +156,7 @@ export default function App() {
           <div className="flex items-center space-x-2">
             <span className="font-bold text-slate-700">API Builder Edu</span>
             <span>•</span>
-            <span>Dasturlash o'quvchilari uchun individual REST API platformasi</span>
+            <span>Dasturlash o'quvchilari uchun uyga vazifalar va individual REST API platformasi</span>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -155,7 +166,7 @@ export default function App() {
             </span>
             <span>•</span>
             <span className="inline-flex items-center space-x-1.5">
-              <span>Joylashuv:</span>
+              <span>Host:</span>
               <strong className="text-slate-700">Railway & Vercel</strong>
             </span>
           </div>

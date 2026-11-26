@@ -63,13 +63,107 @@ const defaultTemplates = [
   }
 ];
 
+const defaultCollections = [
+  {
+    id: 1,
+    slug: 'oquvchilar',
+    title: 'Skyline Education — O\'quvchilar Ro\'yxati',
+    category: 'students',
+    description: 'Frontend uyga vazifasi uchun to\'liq o\'quvchilar ro\'yxati va faollik statistikasi',
+    items: [
+      {
+        id: 1,
+        firstName: 'Ali',
+        lastName: 'Valiyev',
+        name: 'Ali Valiyev',
+        email: 'ali@gmail.com',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=AliValiyev&backgroundColor=c0aede',
+        status: 'Faol',
+        isActive: true,
+        age: 21,
+        profession: 'Frontend Dasturchi',
+        city: 'Toshkent'
+      },
+      {
+        id: 2,
+        firstName: 'Madina',
+        lastName: 'Karimova',
+        name: 'Madina Karimova',
+        email: 'madina@gmail.com',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=MadinaKarimova&backgroundColor=b6e3f4',
+        status: 'Faol',
+        isActive: true,
+        age: 20,
+        profession: 'UI/UX Dizayner',
+        city: 'Samarqand'
+      },
+      {
+        id: 3,
+        firstName: 'Behzod',
+        lastName: 'Raximov',
+        name: 'Behzod Raximov',
+        email: 'behzod@gmail.com',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=BehzodRaximov&backgroundColor=ffd5dc',
+        status: 'Fa\'olsiz',
+        isActive: false,
+        age: 23,
+        profession: 'Backend Dasturchi',
+        city: 'Buxoro'
+      },
+      {
+        id: 4,
+        firstName: 'Sardor',
+        lastName: 'To\'xtayev',
+        name: 'Sardor To\'xtayev',
+        email: 'sardor@gmail.com',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=SardorToxtayev&backgroundColor=d1d4f9',
+        status: 'Faol',
+        isActive: true,
+        age: 22,
+        profession: 'Full-Stack Muhandis',
+        city: 'Farg\'ona'
+      },
+      {
+        id: 5,
+        firstName: 'Dilnoza',
+        lastName: 'Azimova',
+        name: 'Dilnoza Azimova',
+        email: 'dilnoza@gmail.com',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=DilnozaAzimova&backgroundColor=ffdfbf',
+        status: 'Faol',
+        isActive: true,
+        age: 19,
+        profession: 'Mobil Dasturchi',
+        city: 'Toshkent'
+      },
+      {
+        id: 6,
+        firstName: 'Jasur',
+        lastName: 'Mirzayev',
+        name: 'Jasur Mirzayev',
+        email: 'jasur@gmail.com',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=JasurMirzayev&backgroundColor=c0aede',
+        status: 'Fa\'olsiz',
+        isActive: false,
+        age: 24,
+        profession: 'QA Muhandis',
+        city: 'Andijon'
+      }
+    ],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  }
+];
+
 let localData = {
-  templateSeq: 3,
+  templateSeq: 4,
   recordSeq: 1,
   userSeq: 1,
+  collectionSeq: 2,
   templates: [...defaultTemplates],
   records: [],
-  users: []
+  users: [],
+  collections: [...defaultCollections]
 };
 
 // Load saved local data if exists
@@ -352,6 +446,68 @@ function handleFallbackQuery(text, params) {
     const idx = localData.users.findIndex(u => u.id === id);
     if (idx !== -1) {
       const deleted = localData.users.splice(idx, 1)[0];
+      saveLocalData();
+      return { rows: [deleted] };
+    }
+    return { rows: [] };
+  }
+
+  // 13. COLLECTIONS: SELECT
+  if (/^SELECT\s+.*\s+FROM\s+collections/i.test(cleanSql)) {
+    if (cleanSql.includes('WHERE id = $1')) {
+      const col = localData.collections.find(c => c.id === Number(params[0]));
+      return { rows: col ? [col] : [] };
+    }
+    if (cleanSql.includes('WHERE slug = $1')) {
+      const col = localData.collections.find(c => c.slug === String(params[0]));
+      return { rows: col ? [col] : [] };
+    }
+    const rows = [...localData.collections].sort((a, b) => b.id - a.id);
+    return { rows };
+  }
+
+  // 14. COLLECTIONS: INSERT
+  if (/^INSERT\s+INTO\s+collections/i.test(cleanSql)) {
+    const id = localData.collectionSeq++;
+    const [slug, title, category, description, items] = params;
+    const newCol = {
+      id,
+      slug,
+      title,
+      category,
+      description,
+      items: typeof items === 'string' ? JSON.parse(items) : items,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    localData.collections.push(newCol);
+    saveLocalData();
+    return { rows: [newCol] };
+  }
+
+  // 15. COLLECTIONS: UPDATE
+  if (/^UPDATE\s+collections/i.test(cleanSql)) {
+    const id = Number(params[params.length - 1]);
+    const idx = localData.collections.findIndex(c => c.id === id);
+    if (idx === -1) return { rows: [] };
+
+    const [items] = params;
+    localData.collections[idx] = {
+      ...localData.collections[idx],
+      items: typeof items === 'string' ? JSON.parse(items) : items,
+      updated_at: new Date().toISOString()
+    };
+    saveLocalData();
+    return { rows: [localData.collections[idx]] };
+  }
+
+  // 16. COLLECTIONS: DELETE
+  if (/^DELETE\s+FROM\s+collections/i.test(cleanSql)) {
+    const val = params[0];
+    const isNum = !isNaN(Number(val));
+    const idx = localData.collections.findIndex(c => isNum ? c.id === Number(val) : c.slug === String(val));
+    if (idx !== -1) {
+      const deleted = localData.collections.splice(idx, 1)[0];
       saveLocalData();
       return { rows: [deleted] };
     }
