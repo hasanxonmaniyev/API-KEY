@@ -7,7 +7,7 @@ import ApiTester from './components/ApiTester';
 import Documentation from './components/Documentation';
 import ApiResultModal from './components/ApiResultModal';
 import { request } from './utils/api';
-import { Sparkles, Terminal, Layers, Code, Heart, Github, Rocket, ArrowRight } from 'lucide-react';
+import { Sparkles, Terminal, Layers, Code, Heart, Github, Rocket, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('generator');
@@ -35,7 +35,7 @@ export default function App() {
         setStats(statsRes.data.stats);
       }
     } catch (err) {
-      console.error('Failed to load initial data:', err);
+      console.error('Boshlang\'ich ma\'lumotlarni olishda xatolik:', err);
     }
   };
 
@@ -55,13 +55,8 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-[#070a12] text-slate-100 overflow-x-hidden selection:bg-indigo-500 selection:text-white">
-      {/* Ambient background glows */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-indigo-600/15 via-purple-600/5 to-transparent blur-3xl pointer-events-none -z-10" />
-      <div className="fixed top-1/3 -left-48 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="fixed top-2/3 -right-48 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -z-10" />
-
-      {/* Navigation */}
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
+      {/* Tizim Navigatsiyasi */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -69,29 +64,29 @@ export default function App() {
         onRefreshStats={loadData}
       />
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+      {/* Asosiy Ish Maydoni */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'generator' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            {/* Elegant Hero Banner */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-950/40 via-slate-900/80 to-purple-950/40 border border-white/[0.08] p-7 sm:p-10 shadow-2xl backdrop-blur-xl">
-              <div className="max-w-3xl space-y-4">
-                <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-bold tracking-wide">
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                  <span>Educational REST API Platform with Photos & Universal Data</span>
+          <div className="space-y-6">
+            {/* Tizim Sarlavhasi (Banner) */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs">
+              <div className="max-w-3xl space-y-2">
+                <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-md bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Dasturlash Ta'limi uchun REST API Tizimi</span>
                 </div>
 
-                <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
-                  Design, build & test <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">real APIs</span> in seconds.
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                  O'quvchilar uchun individual REST API generatori
                 </h1>
 
-                <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl">
-                  Add photos, custom properties, numbers, and tags. Get an individual auto-incremented API ID with real PostgreSQL persistence to practice JavaScript <code className="text-indigo-300 font-mono font-medium px-1.5 py-0.5 rounded bg-white/[0.05]">fetch()</code> immediately.
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  O'zingiz yoki dars mavzuingizga mos ma'lumotlarni to'ldiring, tayyor mashina va o'quvchi rasmlarini bitta bosishda tanlang. Baza har bir talabaga individual <code className="text-indigo-700 font-mono font-bold bg-slate-100 px-1 py-0.5 rounded">ID</code> va jonli endpoint generatsiya qilib beradi.
                 </p>
               </div>
             </div>
 
-            {/* Dynamic Creation Form */}
+            {/* Dinamik Forma */}
             <DynamicForm
               templates={templates}
               selectedTemplateId={selectedTemplateId}
@@ -101,17 +96,8 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'admin' && (
-          <div className="animate-in fade-in duration-300">
-            <TemplateBuilder
-              templates={templates}
-              onTemplatesUpdated={loadData}
-            />
-          </div>
-        )}
-
         {activeTab === 'explorer' && (
-          <div className="animate-in fade-in duration-300">
+          <div>
             <GeneratedApisList
               onTestApi={handleTestApi}
               onViewResult={setModalResult}
@@ -119,8 +105,17 @@ export default function App() {
           </div>
         )}
 
+        {activeTab === 'admin' && (
+          <div>
+            <TemplateBuilder
+              templates={templates}
+              onTemplatesUpdated={loadData}
+            />
+          </div>
+        )}
+
         {activeTab === 'tester' && (
-          <div className="animate-in fade-in duration-300">
+          <div>
             <ApiTester
               initialUrl={testerProps.url}
               initialMethod={testerProps.method}
@@ -129,13 +124,13 @@ export default function App() {
         )}
 
         {activeTab === 'docs' && (
-          <div className="animate-in fade-in duration-300">
+          <div>
             <Documentation />
           </div>
         )}
       </main>
 
-      {/* Result Modal popup */}
+      {/* Natija Modali */}
       {modalResult && (
         <ApiResultModal
           result={modalResult}
@@ -144,24 +139,24 @@ export default function App() {
         />
       )}
 
-      {/* Elegant Footer */}
-      <footer className="border-t border-white/[0.06] py-8 bg-slate-950/60 backdrop-blur-xl text-xs text-slate-500">
+      {/* Tizim Futer (Pastki qismi) */}
+      <footer className="border-t border-slate-200 py-6 bg-white text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-2">
-            <span className="font-bold text-slate-300">API Builder Edu</span>
+            <span className="font-bold text-slate-700">API Builder Edu</span>
             <span>•</span>
-            <span>Universal Dynamic REST API Generator for Students</span>
+            <span>Dasturlash o'quvchilari uchun individual REST API platformasi</span>
           </div>
 
           <div className="flex items-center space-x-4">
             <span className="inline-flex items-center space-x-1.5">
-              <span>Database:</span>
-              <strong className="text-indigo-400">PostgreSQL (JSONB)</strong>
+              <span>Ma'lumotlar bazasi:</span>
+              <strong className="text-indigo-600">PostgreSQL (JSONB)</strong>
             </span>
             <span>•</span>
             <span className="inline-flex items-center space-x-1.5">
-              <span>Hostable on:</span>
-              <strong className="text-slate-300">Railway & Vercel</strong>
+              <span>Joylashuv:</span>
+              <strong className="text-slate-700">Railway & Vercel</strong>
             </span>
           </div>
         </div>

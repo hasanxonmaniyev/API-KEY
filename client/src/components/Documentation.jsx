@@ -10,181 +10,196 @@ export default function Documentation() {
     setTimeout(() => setCopiedSection(null), 2000);
   };
 
-  const getCode = `// Fetching data and rendering photos into the DOM
+  const getCode = `// 1. O'quvchi yoki Mashina ma'lumotlarini olish va DOM'ga chiqarish
 async function loadUserData() {
   try {
-    const response = await fetch('https://your-domain.up.railway.app/api/data/1');
+    const response = await fetch('https://sizning-domen.up.railway.app/api/data/1');
 
     if (!response.ok) {
-      throw new Error(\`Network error: \${response.status}\`);
+      throw new Error('Serverdan ma\\'lumot kelmadi: ' + response.status);
     }
 
     const item = await response.json();
-    console.log('Received API Data:', item);
+    console.log('Olingan ma\\'lumot:', item);
 
-    // Render image directly in HTML <img>
-    if (item.avatar || item.productImage || item.poster) {
-      document.getElementById('photo').src = item.avatar || item.productImage || item.poster;
+    // Rasmni to'g'ridan-to'g'ri HTML <img> tegiga joylash
+    if (item.avatar || item.carPhoto || item.productImage) {
+      document.getElementById('myImage').src = item.avatar || item.carPhoto || item.productImage;
     }
-    document.getElementById('title').textContent = item.firstName || item.productName || item.title;
+    document.getElementById('myName').textContent = item.firstName + ' ' + (item.lastName || '');
+    document.getElementById('myCar').textContent = item.carName || 'Mashina ko\\'rsatilmagan';
   } catch (error) {
-    console.error('Fetch error:', error);
+    console.error('Xatolik yuz berdi:', error);
   }
 }
 
 loadUserData();`;
 
-  const postCode = `// Creating dynamic record with photo & universal types
-async function createRecordWithPhoto() {
-  const newProduct = {
-    templateId: 2,
-    productImage: 'https://images.unsplash.com/photo-1511707171634-5f897ff02560?auto=format&fit=crop&w=600&q=80',
-    productName: 'iPhone 17 Pro Max',
-    price: 1299,
-    brand: 'Apple',
-    color: '#6366f1',
-    inStock: true
+  const postCode = `// 2. Yangi ma'lumot va mashina rasmini yuborish (POST)
+async function createNewRecord() {
+  const yangiTalaba = {
+    templateId: 1,
+    firstName: 'Hasan',
+    lastName: 'Maniyev',
+    age: 23,
+    profession: 'Full-Stack Dasturchi',
+    city: 'Toshkent',
+    carName: 'Chevrolet Tracker 2',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb'
   };
 
   try {
-    const response = await fetch('https://your-domain.up.railway.app/api/data', {
+    const response = await fetch('https://sizning-domen.up.railway.app/api/data', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json' // Express JSON o'qishi uchun majburiy sarlavha
       },
-      body: JSON.stringify(newProduct)
+      body: JSON.stringify(yangiTalaba) // JS obyektini JSON qatoriga aylantirish
     });
 
     const result = await response.json();
-    console.log('Created Dynamic API ID:', result.apiId);
+    console.log('Yaratilgan yangi API ID:', result.apiId);
   } catch (error) {
-    console.error('Failed to create:', error);
+    console.error('Saqlashda xatolik:', error);
+  }
+}
+
+createNewRecord();`;
+
+  const putCode = `// 3. Mavjud ma'lumotni tahrirlash (PUT)
+async function updateRecord(id) {
+  const oOzgarishlar = {
+    carName: 'BMW M5 Competition',
+    city: 'Samarqand'
+  };
+
+  const response = await fetch(\`https://sizning-domen.up.railway.app/api/data/\${id}\`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(oOzgarishlar)
+  });
+
+  const updated = await response.json();
+  console.log('Yangilangan natija:', updated);
+}`;
+
+  const deleteCode = `// 4. Ma'lumotni PostgreSQL bazasidan o'chirish (DELETE)
+async function deleteRecord(id) {
+  const response = await fetch(\`https://sizning-domen.up.railway.app/api/data/\${id}\`, {
+    method: 'DELETE'
+  });
+
+  if (response.ok) {
+    console.log('Ma\\'lumot muvaffaqiyatli o\\'chirildi!');
   }
 }`;
 
-  const uploadCode = `// Uploading an image file directly to the server
-async function uploadImageFile(fileInput) {
-  const file = fileInput.files[0];
-  const reader = new FileReader();
-
-  reader.onload = async () => {
-    const base64Data = reader.result;
-
-    const response = await fetch('https://your-domain.up.railway.app/api/upload', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image: base64Data })
-    });
-
-    const uploaded = await response.json();
-    console.log('Hosted Image URL:', uploaded.fullUrl);
-    // You can now pass uploaded.fullUrl into your POST /api/data request!
-  };
-
-  reader.readAsDataURL(file);
-}`;
-
   return (
-    <div className="space-y-8 max-w-5xl mx-auto animate-in fade-in">
-      {/* Title */}
-      <div className="rounded-3xl bg-slate-900/60 backdrop-blur-2xl border border-white/[0.08] p-6 sm:p-8 shadow-xl space-y-2">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25">
+    <div className="space-y-6 max-w-5xl mx-auto">
+      {/* Sarlavha */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-2">
+        <div className="flex items-center space-x-2">
+          <span className="p-1 rounded-md bg-indigo-100 text-indigo-700">
             <BookOpen className="w-5 h-5" />
-          </div>
-          <div>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-              JavaScript Fetch API — Universal Educational Guide
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-400">
-              Learn how to consume, display images, send POST requests, and upload files using standard modern JavaScript.
-            </p>
-          </div>
+          </span>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+            JavaScript Fetch API — O'quvchilar uchun Amaliy Qo'llanma
+          </h2>
         </div>
+        <p className="text-xs text-slate-500">
+          Ushbu platforma orqali yaratilgan REST API bilan JavaScript orqali qanday ishlash bo'yicha to'liq amaliy namunalar.
+        </p>
       </div>
 
-      {/* Methods Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* HTTP Metodlar Kartochkalari */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {[
-          { method: 'GET', color: 'emerald', desc: 'Read data & images from database. Perfect for rendering in <img> and <div>.' },
-          { method: 'POST', color: 'indigo', desc: 'Create new records with photos, numbers, booleans, and custom fields.' },
-          { method: 'PUT', color: 'amber', desc: 'Update existing record data, replace photos or change prices.' },
-          { method: 'DELETE', color: 'rose', desc: 'Permanently remove a record from PostgreSQL database.' }
+          { method: 'GET', badge: 'bg-emerald-50 text-emerald-800 border-emerald-200', title: 'Ma\'lumot o\'qish', desc: 'Bazadagi rasmlar va yozuvlarni olib kelib DOM\'ga chiqarish.' },
+          { method: 'POST', badge: 'bg-indigo-50 text-indigo-800 border-indigo-200', title: 'Yangi API yaratish', desc: 'JSON formatida yangi o\'quvchi yoki mashina qo\'shish.' },
+          { method: 'PUT', badge: 'bg-amber-50 text-amber-800 border-amber-200', title: 'Tahrirlash', desc: 'Mavjud yozuvning mashinasi, narxi yoki rasmini yangilash.' },
+          { method: 'DELETE', badge: 'bg-rose-50 text-rose-800 border-rose-200', title: 'O\'chirish', desc: 'Yozuvni PostgreSQL bazasidan butunlay o\'chirish.' }
         ].map(m => (
-          <div key={m.method} className="rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/[0.08] p-4.5 space-y-2">
-            <span className={`px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold ${
-              m.method === 'GET' ? 'bg-emerald-500/20 text-emerald-300' :
-              m.method === 'POST' ? 'bg-indigo-500/20 text-indigo-300' :
-              m.method === 'PUT' ? 'bg-amber-500/20 text-amber-300' : 'bg-rose-500/20 text-rose-300'
-            }`}>
+          <div key={m.method} className="bg-white border border-slate-200 rounded-xl p-4 space-y-1.5 shadow-2xs">
+            <span className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold border ${m.badge}`}>
               {m.method}
             </span>
-            <p className="text-xs text-slate-400 leading-relaxed">{m.desc}</p>
+            <h4 className="text-xs font-bold text-slate-900">{m.title}</h4>
+            <p className="text-[11px] text-slate-500 leading-relaxed">{m.desc}</p>
           </div>
         ))}
       </div>
 
-      {/* Section 1: GET */}
-      <div className="rounded-3xl bg-slate-900/60 backdrop-blur-2xl border border-white/[0.08] p-6 sm:p-8 shadow-xl space-y-4">
+      {/* GET Bo'limi */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <span className="px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300">GET</span>
-            <h3 className="text-base font-extrabold text-white">Fetching Data & Rendering Photos</h3>
+            <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">GET</span>
+            <h3 className="text-sm font-bold text-slate-900">Ma'lumotlar va Rasmlarni o'qib olish (GET)</h3>
           </div>
           <button
             onClick={() => handleCopy(getCode, 'get')}
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 transition-colors"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 transition-colors"
           >
-            {copiedSection === 'get' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-            <span>Copy Code</span>
+            {copiedSection === 'get' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
+            <span>Kodni nusxalash</span>
           </button>
         </div>
-        <pre className="bg-[#06080e] border border-white/[0.08] rounded-2xl p-4 text-xs font-mono text-emerald-400 overflow-x-auto leading-relaxed">
+        <pre className="bg-slate-900 text-emerald-400 rounded-xl p-4 text-xs font-mono overflow-x-auto leading-relaxed shadow-inner">
           {getCode}
         </pre>
       </div>
 
-      {/* Section 2: POST */}
-      <div className="rounded-3xl bg-slate-900/60 backdrop-blur-2xl border border-white/[0.08] p-6 sm:p-8 shadow-xl space-y-4">
+      {/* POST Bo'limi */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <span className="px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold bg-indigo-500/20 text-indigo-300">POST</span>
-            <h3 className="text-base font-extrabold text-white">Sending Dynamic Data with Photos</h3>
+            <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">POST</span>
+            <h3 className="text-sm font-bold text-slate-900">Yangi ma'lumot va rasm yuborish (POST)</h3>
           </div>
           <button
             onClick={() => handleCopy(postCode, 'post')}
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 transition-colors"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 transition-colors"
           >
-            {copiedSection === 'post' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-            <span>Copy Code</span>
+            {copiedSection === 'post' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
+            <span>Kodni nusxalash</span>
           </button>
         </div>
-        <pre className="bg-[#06080e] border border-white/[0.08] rounded-2xl p-4 text-xs font-mono text-indigo-300 overflow-x-auto leading-relaxed">
+        <pre className="bg-slate-900 text-indigo-300 rounded-xl p-4 text-xs font-mono overflow-x-auto leading-relaxed shadow-inner">
           {postCode}
         </pre>
       </div>
 
-      {/* Section 3: Upload */}
-      <div className="rounded-3xl bg-slate-900/60 backdrop-blur-2xl border border-white/[0.08] p-6 sm:p-8 shadow-xl space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold bg-purple-500/20 text-purple-300">UPLOAD</span>
-            <h3 className="text-base font-extrabold text-white">How Image Upload Works (/api/upload)</h3>
+      {/* PUT & DELETE */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-900">PUT (Yangilash)</span>
+            <button
+              onClick={() => handleCopy(putCode, 'put')}
+              className="p-1 rounded text-slate-400 hover:text-slate-700"
+            >
+              {copiedSection === 'put' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+            </button>
           </div>
-          <button
-            onClick={() => handleCopy(uploadCode, 'upload')}
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 transition-colors"
-          >
-            {copiedSection === 'upload' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-            <span>Copy Code</span>
-          </button>
+          <pre className="bg-slate-900 text-amber-300 rounded-xl p-3 text-xs font-mono overflow-x-auto leading-relaxed">
+            {putCode}
+          </pre>
         </div>
-        <p className="text-xs text-slate-400">
-          The API Builder includes a dedicated image hosting service at <code className="text-purple-300 font-mono">/api/upload</code>. You can send Base64 images directly, and receive an instant hosted URL to store in your PostgreSQL records.
-        </p>
-        <pre className="bg-[#06080e] border border-white/[0.08] rounded-2xl p-4 text-xs font-mono text-purple-300 overflow-x-auto leading-relaxed">
-          {uploadCode}
-        </pre>
+
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-900">DELETE (O'chirish)</span>
+            <button
+              onClick={() => handleCopy(deleteCode, 'del')}
+              className="p-1 rounded text-slate-400 hover:text-slate-700"
+            >
+              {copiedSection === 'del' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+            </button>
+          </div>
+          <pre className="bg-slate-900 text-rose-300 rounded-xl p-3 text-xs font-mono overflow-x-auto leading-relaxed">
+            {deleteCode}
+          </pre>
+        </div>
       </div>
     </div>
   );

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Play, Send, RefreshCw, Copy, Check, Clock, Database, CheckCircle2, AlertTriangle, FileCode } from 'lucide-react';
-import { getApiUrl, getFullApiUrl } from '../utils/api';
+import { getApiUrl } from '../utils/api';
 
 export default function ApiTester({ initialUrl = '', initialMethod = 'GET', initialBody = '' }) {
   const [method, setMethod] = useState(initialMethod || 'GET');
   const [url, setUrl] = useState(initialUrl || '/api/data/1');
-  const [body, setBody] = useState(initialBody || '{\n  "firstName": "Hasan",\n  "lastName": "Maniyev",\n  "age": 23,\n  "profession": "Developer",\n  "city": "Tashkent"\n}');
+  const [body, setBody] = useState(initialBody || '{\n  "firstName": "Hasan",\n  "lastName": "Maniyev",\n  "age": 23,\n  "profession": "Dasturchi",\n  "city": "Tashkent"\n}');
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(null);
   const [copied, setCopied] = useState(false);
@@ -35,10 +35,10 @@ export default function ApiTester({ initialUrl = '', initialMethod = 'GET', init
           setLoading(false);
           setResponse({
             status: 400,
-            statusText: 'Bad Request (Client Error)',
+            statusText: 'Noto\'g\'ri format (Client Error)',
             time: 0,
             size: 0,
-            data: { error: 'Invalid JSON format in Request Body', details: jsonErr.message }
+            data: { error: 'Request Body maydonida yaroqsiz JSON formati', details: jsonErr.message }
           });
           return;
         }
@@ -62,7 +62,7 @@ export default function ApiTester({ initialUrl = '', initialMethod = 'GET', init
 
       setResponse({
         status: res.status,
-        statusText: res.statusText || (res.status === 200 ? 'OK' : res.status === 201 ? 'Created' : 'Response'),
+        statusText: res.statusText || (res.status === 200 ? 'OK (Muvaffaqiyatli)' : res.status === 201 ? 'Created (Yaratildi)' : 'Javob'),
         time: duration,
         size: new Blob([rawText]).size,
         data
@@ -71,10 +71,10 @@ export default function ApiTester({ initialUrl = '', initialMethod = 'GET', init
       const endTime = performance.now();
       setResponse({
         status: 0,
-        statusText: 'Network / Connection Error',
+        statusText: 'Tarmoq / Ulanish xatosi',
         time: Math.round(endTime - startTime),
         size: 0,
-        data: { error: err.message, tip: 'Ensure backend server is running and CORS is enabled.' }
+        data: { error: err.message, tip: 'Server ishga tushirilganligini va manzil to\'g\'riligini tekshiring.' }
       });
     } finally {
       setLoading(false);
@@ -89,65 +89,62 @@ export default function ApiTester({ initialUrl = '', initialMethod = 'GET', init
   };
 
   const getStatusColor = (status) => {
-    if (status >= 200 && status < 300) return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
-    if (status >= 300 && status < 400) return 'bg-amber-500/20 text-amber-300 border-amber-500/30';
-    if (status >= 400 && status < 500) return 'bg-rose-500/20 text-rose-300 border-rose-500/30';
-    return 'bg-red-500/20 text-red-300 border-red-500/30';
+    if (status >= 200 && status < 300) return 'bg-emerald-50 text-emerald-800 border-emerald-200';
+    if (status >= 300 && status < 400) return 'bg-amber-50 text-amber-800 border-amber-200';
+    if (status >= 400 && status < 500) return 'bg-rose-50 text-rose-800 border-rose-200';
+    return 'bg-red-50 text-red-800 border-red-200';
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in">
-      {/* Title */}
-      <div className="rounded-3xl bg-slate-900/60 backdrop-blur-2xl border border-white/[0.08] p-6 sm:p-8 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div className="space-y-6">
+      {/* Sarlavha */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25">
-              <Play className="w-5 h-5 fill-white" />
-            </div>
-            <div>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">Interactive REST API Tester</h2>
-              <p className="text-xs sm:text-sm text-slate-400">
-                Execute GET, POST, PUT, DELETE requests in real-time. Inspect headers, payload sizes, and response latencies.
-              </p>
-            </div>
+          <div className="flex items-center space-x-2">
+            <span className="p-1 rounded-md bg-indigo-100 text-indigo-700">
+              <Play className="w-5 h-5 fill-indigo-700" />
+            </span>
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight">Interaktiv REST API Tester</h2>
           </div>
+          <p className="text-xs text-slate-500 mt-1">
+            GET, POST, PUT, DELETE so'rovlarini real vaqtda yuborish, status kodlari va JSON javoblarni tahlil qilish.
+          </p>
         </div>
 
-        {/* Quick presets */}
+        {/* Tezkor namunalar */}
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => { setMethod('GET'); setUrl('/api/data/1'); }}
-            className="px-3 py-1.5 rounded-xl text-xs font-mono bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 transition-colors"
+            className="px-3 py-1.5 rounded-lg text-xs font-mono bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 transition-colors"
           >
             GET /api/data/1
           </button>
           <button
             type="button"
             onClick={() => { setMethod('GET'); setUrl('/api/users'); }}
-            className="px-3 py-1.5 rounded-xl text-xs font-mono bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 transition-colors"
+            className="px-3 py-1.5 rounded-lg text-xs font-mono bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 transition-colors"
           >
             GET /api/users
           </button>
           <button
             type="button"
             onClick={() => { setMethod('GET'); setUrl('/api/templates'); }}
-            className="px-3 py-1.5 rounded-xl text-xs font-mono bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 transition-colors"
+            className="px-3 py-1.5 rounded-lg text-xs font-mono bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 transition-colors"
           >
             GET /api/templates
           </button>
         </div>
       </div>
 
-      {/* Postman-like Request Console */}
-      <div className="rounded-3xl bg-slate-900/60 backdrop-blur-2xl border border-white/[0.08] shadow-2xl overflow-hidden">
-        <form onSubmit={handleSend} className="p-6 sm:p-8 space-y-5">
-          {/* URL Input Bar */}
-          <div className="flex flex-col sm:flex-row items-stretch gap-2.5 bg-slate-950/80 p-2.5 rounded-2xl border border-white/[0.08] shadow-inner">
+      {/* Postman uslubidagi So'rov konsoli */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <form onSubmit={handleSend} className="p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row items-stretch gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
             <select
               value={method}
               onChange={(e) => setMethod(e.target.value)}
-              className="bg-slate-900 border border-white/[0.08] rounded-xl px-4 py-2.5 text-xs font-bold font-mono text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shrink-0 cursor-pointer"
+              className="bg-white border border-slate-300 rounded-lg px-3.5 py-2 text-xs font-bold font-mono text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 shrink-0 cursor-pointer shadow-2xs"
             >
               <option value="GET">GET</option>
               <option value="POST">POST</option>
@@ -160,71 +157,68 @@ export default function ApiTester({ initialUrl = '', initialMethod = 'GET', init
               required
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="e.g. /api/data/1 or https://..."
-              className="w-full bg-transparent px-3 py-2 text-xs font-mono text-slate-100 placeholder:text-slate-600 focus:outline-none"
+              placeholder="Masalan: /api/data/1 yoki https://..."
+              className="w-full bg-transparent px-3 py-2 text-xs font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none"
             />
 
             <button
               type="submit"
               disabled={loading}
-              className="group relative inline-flex items-center justify-center p-0.5 rounded-xl overflow-hidden font-bold transition-all shadow-md shadow-indigo-600/25 active:scale-95 shrink-0 disabled:opacity-50"
+              className="inline-flex items-center justify-center space-x-2 px-6 py-2 rounded-lg font-bold text-xs text-white bg-indigo-600 hover:bg-indigo-700 shadow-xs transition-all shrink-0 active:scale-95 disabled:opacity-50"
             >
-              <span className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
-              <span className="relative px-6 py-2.5 rounded-[10px] bg-[#0c101d] group-hover:bg-opacity-80 flex items-center space-x-2 text-xs text-white">
-                {loading ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>Sending...</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Send Request</span>
-                  </>
-                )}
-              </span>
+              {loading ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Yuborilmoqda...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-3.5 h-3.5" />
+                  <span>So'rov yuborish</span>
+                </>
+              )}
             </button>
           </div>
 
-          {/* Request Body (for POST / PUT) */}
+          {/* POST / PUT uchun Body */}
           {['POST', 'PUT'].includes(method) && (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-slate-300 flex items-center space-x-1.5">
-                  <FileCode className="w-3.5 h-3.5 text-indigo-400" />
-                  <span>Request JSON Body</span>
+                <label className="text-xs font-bold text-slate-800 flex items-center space-x-1.5">
+                  <FileCode className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>So'rov JSON Tanasi (Request Body)</span>
                 </label>
-                <span className="text-[10px] font-mono text-slate-500">application/json</span>
+                <span className="text-[10px] font-mono text-slate-400">application/json</span>
               </div>
               <textarea
-                rows={6}
+                rows={5}
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
-                placeholder="Enter valid JSON payload..."
-                className="w-full bg-slate-950/70 border border-white/[0.08] rounded-2xl p-4 text-xs font-mono text-indigo-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="JSON formatidagi ma'lumot..."
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs font-mono text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
           )}
         </form>
 
-        {/* Response Panel */}
+        {/* Natija Javob Paneli */}
         {response && (
-          <div className="border-t border-white/[0.06] bg-slate-950/60 p-6 sm:p-8 space-y-4 animate-in fade-in">
+          <div className="border-t border-slate-200 bg-slate-50/60 p-6 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center space-x-3">
-                <span className="text-xs font-semibold text-slate-400">Status:</span>
-                <span className={`px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold border ${getStatusColor(response.status)}`}>
+                <span className="text-xs font-semibold text-slate-500">Status:</span>
+                <span className={`px-2.5 py-0.5 rounded-md text-xs font-mono font-bold border ${getStatusColor(response.status)}`}>
                   {response.status} {response.statusText}
                 </span>
 
-                <span className="text-xs font-semibold text-slate-400 ml-2">Time:</span>
-                <span className="inline-flex items-center space-x-1 text-xs font-mono text-slate-300">
-                  <Clock className="w-3.5 h-3.5 text-indigo-400" />
+                <span className="text-xs font-semibold text-slate-500 ml-2">Vaqt:</span>
+                <span className="inline-flex items-center space-x-1 text-xs font-mono text-slate-700">
+                  <Clock className="w-3.5 h-3.5 text-indigo-600" />
                   <span>{response.time} ms</span>
                 </span>
 
-                <span className="text-xs font-semibold text-slate-400 ml-2">Size:</span>
-                <span className="text-xs font-mono text-slate-300">
+                <span className="text-xs font-semibold text-slate-500 ml-2">Hajm:</span>
+                <span className="text-xs font-mono text-slate-700">
                   {response.size} B
                 </span>
               </div>
@@ -232,14 +226,14 @@ export default function ApiTester({ initialUrl = '', initialMethod = 'GET', init
               <button
                 type="button"
                 onClick={handleCopyResponse}
-                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 transition-colors"
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 transition-colors shadow-2xs"
               >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? 'Copied' : 'Copy Response'}</span>
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
+                <span>{copied ? 'Nusxalandi' : 'Javobni nusxalash'}</span>
               </button>
             </div>
 
-            <pre className="bg-[#06080e] border border-white/[0.08] rounded-2xl p-4 text-xs font-mono text-emerald-400 overflow-x-auto max-h-96 leading-relaxed">
+            <pre className="bg-slate-900 text-emerald-400 border border-slate-800 rounded-xl p-4 text-xs font-mono overflow-x-auto max-h-80 leading-relaxed shadow-inner">
               {typeof response.data === 'object' ? JSON.stringify(response.data, null, 2) : response.data}
             </pre>
           </div>

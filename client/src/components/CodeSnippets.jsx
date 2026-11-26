@@ -6,26 +6,26 @@ export default function CodeSnippets({ url, id, sampleData }) {
   const [copied, setCopied] = useState(false);
 
   const snippets = {
-    fetch: `// 1. Practice JavaScript Fetch API (GET)
+    fetch: `// 1. JavaScript Fetch API orqali ma'lumotlarni o'qish (GET)
 async function getMyData() {
   try {
     const response = await fetch('${url}');
     if (!response.ok) {
-      throw new Error(\`HTTP error! status: \${response.status}\`);
+      throw new Error(\`Xatolik yuz berdi: \${response.status}\`);
     }
     const data = await response.json();
-    console.log('Received data:', data);
+    console.log('Qabul qilingan ma\\'lumot:', data);
     return data;
   } catch (error) {
-    console.error('Fetch error:', error);
+    console.error('Fetch xatosi:', error);
   }
 }
 
 getMyData();`,
 
-    fetchPost: `// 2. Practice JavaScript Fetch API (POST)
+    fetchPost: `// 2. JavaScript Fetch API orqali yangi yozuv yaratish (POST)
 async function createNewData() {
-  const payload = ${JSON.stringify(sampleData || { title: 'New Item' }, null, 2)};
+  const payload = ${JSON.stringify(sampleData || { title: 'Yangi yozuv' }, null, 2)};
 
   const response = await fetch('${url.replace(/\/\d+$/, '')}', {
     method: 'POST',
@@ -36,35 +36,25 @@ async function createNewData() {
   });
 
   const result = await response.json();
-  console.log('Created record:', result);
+  console.log('Yaratilgan yangi yozuv:', result);
 }
 
 createNewData();`,
 
-    axios: `// Using Axios library in React/Node
+    axios: `// React yoki Node.js loyihalarida Axios kutubxonasi orqali
 import axios from 'axios';
 
 axios.get('${url}')
   .then(response => {
-    console.log('Axios Data:', response.data);
+    console.log('Axios javobi:', response.data);
   })
   .catch(error => {
-    console.error('Axios Error:', error);
+    console.error('Axios xatosi:', error);
   });`,
 
-    curl: `# cURL command (run in your terminal)
+    curl: `# Terminal (buyruqlar satri) orqali tekshirish
 curl -X GET "${url}" \\
-  -H "Accept: application/json"`,
-
-    python: `# Python 3 with 'requests' package
-import requests
-
-response = requests.get("${url}")
-if response.status_code == 200:
-    data = response.json()
-    print("Python received:", data)
-else:
-    print("Error:", response.status_code)`
+  -H "Accept: application/json"`
   };
 
   const handleCopy = () => {
@@ -74,21 +64,20 @@ else:
   };
 
   return (
-    <div className="bg-[#07090e] border border-dark-border rounded-xl overflow-hidden">
-      {/* Tab headers */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-dark-border bg-dark-card/60">
+    <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-inner">
+      {/* Tab sarlavhalari */}
+      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-800 bg-slate-950/60">
         <div className="flex items-center space-x-1">
           {[
             { id: 'fetch', label: 'JS Fetch (GET)' },
             { id: 'fetchPost', label: 'JS Fetch (POST)' },
             { id: 'axios', label: 'Axios' },
-            { id: 'curl', label: 'cURL' },
-            { id: 'python', label: 'Python' }
+            { id: 'curl', label: 'cURL' }
           ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveLang(tab.id)}
-              className={`px-2.5 py-1 rounded-lg text-xs font-mono font-medium transition-colors ${
+              className={`px-2.5 py-1 rounded-md text-xs font-mono font-medium transition-colors ${
                 activeLang === tab.id
                   ? 'bg-indigo-600 text-white'
                   : 'text-slate-400 hover:text-slate-200'
@@ -101,16 +90,16 @@ else:
 
         <button
           onClick={handleCopy}
-          className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-dark-bg hover:bg-dark-hover border border-dark-border text-slate-300 transition-colors"
+          className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors"
         >
-          {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-          <span>{copied ? 'Copied Snippet' : 'Copy Code'}</span>
+          {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
+          <span>{copied ? 'Nusxalandi' : 'Kodni nusxalash'}</span>
         </button>
       </div>
 
-      {/* Code Display */}
-      <div className="p-4 overflow-x-auto max-h-72">
-        <pre className="text-xs font-mono text-indigo-200/90 leading-relaxed whitespace-pre">
+      {/* Kod maydoni */}
+      <div className="p-4 overflow-x-auto max-h-64">
+        <pre className="text-xs font-mono text-emerald-400 leading-relaxed whitespace-pre">
           {snippets[activeLang]}
         </pre>
       </div>

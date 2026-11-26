@@ -1,69 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Sparkles, Dices, RefreshCw, Send, AlertCircle, Check, Info, 
-  Upload, Image as ImageIcon, X, Link as LinkIcon, Palette, Calendar, Hash, Tag, Type 
+  Sparkles, Dices, RefreshCw, AlertCircle, Check, Info, 
+  Upload, Image as ImageIcon, X, Link as LinkIcon, Palette, CheckCircle2, Car, User, ShoppingBag 
 } from 'lucide-react';
-import { request, uploadImage, getFullApiUrl } from '../utils/api';
-
-const STOCK_IMAGES = [
-  { name: 'Avatar 1', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80' },
-  { name: 'Avatar 2', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80' },
-  { name: 'iPhone 17', url: 'https://images.unsplash.com/photo-1511707171634-5f897ff02560?auto=format&fit=crop&w=600&q=80' },
-  { name: 'MacBook', url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80' },
-  { name: 'BMW Sports', url: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=600&q=80' },
-  { name: 'Movie Poster', url: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80' }
-];
-
-const SAMPLE_DATASETS = [
-  {
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80',
-    firstName: 'Hasan',
-    lastName: 'Maniyev',
-    age: 23,
-    profession: 'Senior Full-Stack Engineer',
-    email: 'hasan.maniyev@dev.io',
-    city: 'Tashkent',
-    carName: 'BMW M5 Competition',
-    fianceName: 'Zulayho',
-    productImage: 'https://images.unsplash.com/photo-1511707171634-5f897ff02560?auto=format&fit=crop&w=600&q=80',
-    productName: 'iPhone 17 Pro Max',
-    price: 1299,
-    brand: 'Apple',
-    color: '#6366f1',
-    inStock: true,
-    description: 'Next-generation flagship smartphone with aerospace titanium alloy casing and A19 Pro chip.',
-    poster: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80',
-    title: 'Interstellar',
-    director: 'Christopher Nolan',
-    year: 2014,
-    rating: 8.7,
-    isAvailable: true
-  },
-  {
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
-    firstName: 'Alisher',
-    lastName: 'Navoiy',
-    age: 28,
-    profession: 'Frontend Architect & Mentor',
-    email: 'alisher@moderncode.uz',
-    city: 'Samarkand',
-    carName: 'Chevrolet Malibu 2 Turbo',
-    fianceName: 'Guli',
-    productImage: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80',
-    productName: 'MacBook Pro 16" M3 Max',
-    price: 3499,
-    brand: 'Apple',
-    color: '#0f172a',
-    inStock: true,
-    description: 'Ultra-fast laptop designed for computational intelligence, code compilation and 3D rendering.',
-    poster: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=600&q=80',
-    title: 'Inception',
-    director: 'Christopher Nolan',
-    year: 2010,
-    rating: 8.8,
-    isAvailable: true
-  }
-];
+import { request, uploadImage } from '../utils/api';
+import { IMAGE_GALLERIES, getGalleryForField } from '../data/galleries';
 
 export default function DynamicForm({ templates, selectedTemplateId, setSelectedTemplateId, onApiGenerated }) {
   const [formData, setFormData] = useState({});
@@ -75,7 +16,7 @@ export default function DynamicForm({ templates, selectedTemplateId, setSelected
   const currentTemplate = templates.find(t => t.id === Number(selectedTemplateId)) || templates[0];
   const fields = currentTemplate?.fields || [];
 
-  // Reset or initialize values when template changes
+  // Shablon o'zgarganda boshlang'ich qiymatlarni o'rnatish
   useEffect(() => {
     if (fields.length > 0) {
       const initial = {};
@@ -100,6 +41,17 @@ export default function DynamicForm({ templates, selectedTemplateId, setSelected
     }));
   };
 
+  // Galereyadan rasmni bosib tanlash
+  const handleSelectGalleryItem = (fieldKey, item) => {
+    handleInputChange(fieldKey, item.url, 'image');
+
+    // Agar bu mashina rasmi bo'lsa va formda carName maydoni bo'lsa, mashina nomini ham avtomatik to'ldirish
+    if (formData.carName !== undefined && item.name) {
+      handleInputChange('carName', item.name, 'text');
+    }
+  };
+
+  // Fayl yuklash
   const handleFileUpload = async (key, file) => {
     if (!file) return;
     setUploadingField(key);
@@ -108,30 +60,53 @@ export default function DynamicForm({ templates, selectedTemplateId, setSelected
       const url = uploadRes.fullUrl || uploadRes.url;
       handleInputChange(key, url, 'image');
     } catch (err) {
-      alert('Image upload failed: ' + err.message);
+      alert('Rasm yuklashda xatolik yuz berdi: ' + err.message);
     } finally {
       setUploadingField(null);
     }
   };
 
+  // Namuna ma'lumotlarni avtomatik to'ldirish
   const handleFillRandom = () => {
-    const randomSet = SAMPLE_DATASETS[Math.floor(Math.random() * SAMPLE_DATASETS.length)];
+    const isCarTemplate = currentTemplate?.id === 1 || fields.some(f => f.key === 'carName');
+    const randomCar = IMAGE_GALLERIES.cars[Math.floor(Math.random() * IMAGE_GALLERIES.cars.length)];
+    const randomAvatar = IMAGE_GALLERIES.avatars[Math.floor(Math.random() * IMAGE_GALLERIES.avatars.length)];
+    const randomProd = IMAGE_GALLERIES.products[Math.floor(Math.random() * IMAGE_GALLERIES.products.length)];
+
+    const samplePeople = [
+      { firstName: 'Hasan', lastName: 'Maniyev', age: 23, profession: 'Dasturiy Ta\'minot Muhandisi', city: 'Toshkent', fianceName: 'Zulayho' },
+      { firstName: 'Alisher', lastName: 'Navoiy', age: 25, profession: 'Frontend Dasturchi', city: 'Samarqand', fianceName: 'Guli' },
+      { firstName: 'Jasur', lastName: 'Raximov', age: 22, profession: 'Backend Dasturchi', city: 'Buxoro', fianceName: 'Madina' },
+      { firstName: 'Bobur', lastName: 'Mirzayev', age: 24, profession: 'Mobil Dasturchi', city: 'Andijon', fianceName: 'Kamola' }
+    ];
+
+    const person = samplePeople[Math.floor(Math.random() * samplePeople.length)];
+
     const filled = {};
     fields.forEach(f => {
-      if (randomSet[f.key] !== undefined) {
-        filled[f.key] = randomSet[f.key];
+      if (person[f.key] !== undefined) {
+        filled[f.key] = person[f.key];
+      } else if (f.key === 'carName') {
+        filled[f.key] = randomCar.name;
+      } else if (f.key === 'avatar' || f.key === 'photo') {
+        filled[f.key] = randomAvatar.url;
+      } else if (f.key === 'carPhoto' || f.key === 'carImage') {
+        filled[f.key] = randomCar.url;
+      } else if (f.key === 'productImage') {
+        filled[f.key] = randomProd.url;
+      } else if (f.key === 'productName') {
+        filled[f.key] = randomProd.name;
       } else if (f.type === 'number') {
-        filled[f.key] = Math.floor(Math.random() * 100) + 1;
+        filled[f.key] = f.key === 'price' ? 1200 : 25;
       } else if (f.type === 'boolean') {
-        filled[f.key] = Math.random() > 0.5;
-      } else if (f.type === 'image') {
-        filled[f.key] = STOCK_IMAGES[Math.floor(Math.random() * STOCK_IMAGES.length)].url;
+        filled[f.key] = true;
       } else if (f.type === 'color') {
-        filled[f.key] = '#6366f1';
+        filled[f.key] = '#4f46e5';
       } else {
-        filled[f.key] = `Sample ${f.name}`;
+        filled[f.key] = f.defaultValue || `${f.name} namunasi`;
       }
     });
+
     setFormData(filled);
   };
 
@@ -141,7 +116,6 @@ export default function DynamicForm({ templates, selectedTemplateId, setSelected
     setError(null);
 
     try {
-      // Create both /api/users (if applicable) and /api/data for maximum flexibility
       if (currentTemplate?.id === 1 && formData.firstName && formData.lastName) {
         try {
           await request('/api/users', {
@@ -167,53 +141,50 @@ export default function DynamicForm({ templates, selectedTemplateId, setSelected
           templateName: currentTemplate.name
         });
       } else {
-        setError(res.data?.message || (res.data?.errors ? res.data.errors.join(', ') : 'Failed to generate API'));
+        setError(res.data?.message || (res.data?.errors ? res.data.errors.join(', ') : 'API yaratishda xatolik yuz berdi'));
       }
     } catch (err) {
-      setError(err.message || 'Network error occurred while generating API');
+      setError(err.message || 'Server bilan bog\'lanishda xatolik yuz berdi');
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="relative rounded-3xl bg-slate-900/60 backdrop-blur-2xl border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
-      {/* Decorative ambient glow */}
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+  // Rasm maydonlarini ajratib olish (galereya ko'rsatish uchun)
+  const imageFields = fields.filter(f => f.type === 'image');
+  const regularFields = fields.filter(f => f.type !== 'image');
 
-      {/* Header Bar */}
-      <div className="relative z-10 p-6 sm:p-8 border-b border-white/[0.06] bg-gradient-to-r from-slate-900/80 via-slate-900/50 to-slate-900/80">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
-          <div className="space-y-1">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-                  Universal API Generator
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-400">
-                  Select a template, customize fields with photos, and generate your live endpoint.
-                </p>
-              </div>
+  return (
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+      {/* 1. Yuqori qism: Shablon tanlash */}
+      <div className="p-6 sm:p-7 border-b border-slate-200 bg-slate-50/70">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div className="flex items-center space-x-2">
+              <span className="p-1 rounded-md bg-indigo-100 text-indigo-700">
+                <Sparkles className="w-4 h-4" />
+              </span>
+              <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+                1-Qadam: Dars shablonini tanlang
+              </h2>
             </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Kerakli mavzuni bosing. Maydonlar va tayyor rasmlar avtomatik moslashadi.
+            </p>
           </div>
 
-          {/* Quick random filler button */}
           <button
             type="button"
             onClick={handleFillRandom}
-            className="group relative inline-flex items-center space-x-2 px-4 py-2.5 rounded-2xl text-xs font-semibold bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.1] text-slate-200 hover:text-white backdrop-blur-md transition-all duration-200 active:scale-95 shadow-sm"
+            className="inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 transition-all shadow-2xs active:scale-95"
           >
-            <Dices className="w-4 h-4 text-indigo-400 group-hover:rotate-45 transition-transform duration-300" />
-            <span>Fill Sample Data & Images</span>
+            <Dices className="w-4 h-4 text-indigo-600" />
+            <span>Namunaviy ma'lumotlar bilan to'ldirish</span>
           </button>
         </div>
 
-        {/* Template Selector with Pills */}
-        <div className="mt-6 flex flex-wrap gap-2.5">
+        {/* Shablon tugmalari */}
+        <div className="mt-4 flex flex-wrap gap-2.5">
           {templates.map(tpl => {
             const isSelected = Number(selectedTemplateId) === tpl.id;
             return (
@@ -221,17 +192,17 @@ export default function DynamicForm({ templates, selectedTemplateId, setSelected
                 key={tpl.id}
                 type="button"
                 onClick={() => setSelectedTemplateId(tpl.id)}
-                className={`relative px-4 py-2.5 rounded-2xl text-xs font-semibold transition-all duration-200 flex items-center space-x-2 ${
+                className={`px-4 py-2.5 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2.5 border ${
                   isSelected
-                    ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30 ring-1 ring-white/20 scale-[1.02]'
-                    : 'bg-white/[0.03] hover:bg-white/[0.06] text-slate-400 hover:text-slate-200 border border-white/[0.06]'
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
+                    : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                 }`}
               >
                 <span>{tpl.name}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
-                  isSelected ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-400'
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono ${
+                  isSelected ? 'bg-indigo-700 text-white' : 'bg-slate-100 text-slate-600'
                 }`}>
-                  {tpl.fields?.length || 0} fields
+                  {tpl.fields?.length || 0} ta maydon
                 </span>
               </button>
             );
@@ -239,77 +210,212 @@ export default function DynamicForm({ templates, selectedTemplateId, setSelected
         </div>
       </div>
 
-      {/* Dynamic Form Content */}
-      <form onSubmit={handleSubmit} className="relative z-10 p-6 sm:p-8 space-y-6">
+      {/* 2. Asosiy forma */}
+      <form onSubmit={handleSubmit} className="p-6 sm:p-7 space-y-7">
         {error && (
-          <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 flex items-start space-x-3 text-sm animate-in fade-in">
-            <AlertCircle className="w-5 h-5 shrink-0 text-rose-400 mt-0.5" />
+          <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-start space-x-3 text-xs">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
             <div>
-              <p className="font-semibold">Validation Issue</p>
-              <p className="text-xs text-rose-200/80 mt-0.5">{error}</p>
+              <p className="font-bold">Xatolik:</p>
+              <p className="mt-0.5 text-rose-700">{error}</p>
             </div>
           </div>
         )}
 
-        {/* Form Fields Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {fields.map((field) => {
-            const val = formData[field.key] !== undefined ? formData[field.key] : '';
+        {/* Matnli va raqamli maydonlar */}
+        <div>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-3 flex items-center space-x-1.5">
+            <span>2-Qadam: Ma'lumotlarni kiriting</span>
+          </h3>
 
-            // 1. IMAGE FIELD (Upload or URL with visual preview)
-            if (field.type === 'image') {
-              const isUploading = uploadingField === field.key;
-              return (
-                <div key={field.key} className="md:col-span-2 lg:col-span-3 rounded-2xl bg-white/[0.02] border border-white/[0.07] p-5 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-slate-200 flex items-center space-x-2">
-                      <ImageIcon className="w-4 h-4 text-purple-400" />
-                      <span>{field.name}</span>
-                      {field.required && <span className="text-rose-400">*</span>}
-                    </label>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">
-                      image
-                    </span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {regularFields.map((field) => {
+              const val = formData[field.key] !== undefined ? formData[field.key] : '';
+
+              if (field.type === 'boolean') {
+                return (
+                  <div key={field.key} className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex items-center justify-between">
+                    <div>
+                      <label className="text-xs font-bold text-slate-800 flex items-center space-x-1">
+                        <span>{field.name}</span>
+                        {field.required && <span className="text-rose-500">*</span>}
+                      </label>
+                      <span className="text-[10px] font-mono text-slate-500">{field.key} (ha / yo'q)</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleInputChange(field.key, !val, 'boolean')}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        val ? 'bg-indigo-600' : 'bg-slate-300'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          val ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
                   </div>
+                );
+              }
 
-                  <div className="flex flex-col sm:flex-row items-center gap-4">
-                    {/* Visual Thumbnail */}
-                    <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-slate-950 border border-white/[0.1] shrink-0 flex items-center justify-center group shadow-md">
-                      {val ? (
-                        <>
-                          <img src={val} alt="Preview" className="w-full h-full object-cover" />
+              if (field.type === 'color') {
+                return (
+                  <div key={field.key} className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1">
+                    <label className="text-xs font-bold text-slate-800 flex items-center space-x-1">
+                      <span>{field.name}</span>
+                    </label>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="color"
+                        value={val || '#4f46e5'}
+                        onChange={(e) => handleInputChange(field.key, e.target.value, 'color')}
+                        className="w-9 h-8 rounded-lg border-0 cursor-pointer p-0 bg-transparent"
+                      />
+                      <input
+                        type="text"
+                        value={val}
+                        onChange={(e) => handleInputChange(field.key, e.target.value, 'color')}
+                        className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-mono text-slate-700"
+                      />
+                    </div>
+                  </div>
+                );
+              }
+
+              if (field.type === 'textarea') {
+                return (
+                  <div key={field.key} className="sm:col-span-2 lg:col-span-3 space-y-1">
+                    <label className="text-xs font-bold text-slate-800">
+                      {field.name} {field.required && <span className="text-rose-500">*</span>}
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={val}
+                      required={field.required}
+                      placeholder={`${field.name} haqida batafsil ma'lumot...`}
+                      onChange={(e) => handleInputChange(field.key, e.target.value, 'textarea')}
+                      className="w-full bg-white border border-slate-300 rounded-xl p-3 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                  </div>
+                );
+              }
+
+              return (
+                <div key={field.key} className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-800">
+                      {field.name} {field.required && <span className="text-rose-500">*</span>}
+                    </label>
+                    <span className="text-[10px] font-mono text-slate-400">{field.key}</span>
+                  </div>
+                  <input
+                    type={field.type === 'number' ? 'number' : field.type === 'email' ? 'email' : 'text'}
+                    value={val}
+                    required={field.required}
+                    placeholder={`Masalan: ${field.defaultValue || field.name}...`}
+                    onChange={(e) => handleInputChange(field.key, e.target.value, field.type)}
+                    className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium"
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 3. Rasmlar bo'limi: Tayyor rasmlar to'plamidan bitta bosish orqali tanlash */}
+        {imageFields.length > 0 && (
+          <div className="pt-2 border-t border-slate-200">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-4 flex items-center space-x-1.5">
+              <span>3-Qadam: Rasmni tanlang (Bitta bosish kifoya)</span>
+            </h3>
+
+            <div className="space-y-6">
+              {imageFields.map((field) => {
+                const currentVal = formData[field.key] || '';
+                const galleryInfo = getGalleryForField(field.key, field.name);
+                const isUploading = uploadingField === field.key;
+
+                return (
+                  <div key={field.key} className="bg-slate-50/70 border border-slate-200 rounded-2xl p-5 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div className="flex items-center space-x-2">
+                        <ImageIcon className="w-4 h-4 text-indigo-600" />
+                        <span className="text-xs font-bold text-slate-900">{field.name}:</span>
+                        <span className="text-xs text-slate-500 font-normal">{galleryInfo.title}</span>
+                      </div>
+
+                      {/* Tanlangan rasm ko'rinishi */}
+                      {currentVal && (
+                        <div className="flex items-center space-x-2 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs text-slate-600">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          <span className="font-medium text-[11px]">Rasm tanlandi</span>
                           <button
                             type="button"
                             onClick={() => handleInputChange(field.key, '', 'image')}
-                            className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-rose-400 transition-opacity"
-                            title="Remove photo"
+                            className="text-slate-400 hover:text-rose-600 ml-1"
                           >
-                            <X className="w-6 h-6" />
+                            <X className="w-3.5 h-3.5" />
                           </button>
-                        </>
-                      ) : (
-                        <div className="text-center p-2 text-slate-600">
-                          <ImageIcon className="w-7 h-7 mx-auto mb-1 text-slate-600" />
-                          <span className="text-[10px]">No Image</span>
                         </div>
                       )}
                     </div>
 
-                    {/* Input & Upload Controls */}
-                    <div className="flex-1 w-full space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <div className="relative flex-1">
-                          <LinkIcon className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                          <input
-                            type="url"
-                            value={val}
-                            placeholder="Paste image URL (https://...)"
-                            onChange={(e) => handleInputChange(field.key, e.target.value, 'image')}
-                            className="w-full bg-slate-950/70 border border-white/[0.08] rounded-xl pl-8 pr-3 py-2 text-xs text-indigo-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all font-mono"
-                          />
-                        </div>
+                    {/* TAYYOR RASMLAR GALEREYASI (KATALOG) */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-3">
+                      {galleryInfo.items.map((item) => {
+                        const isSelected = currentVal === item.url;
+                        return (
+                          <div
+                            key={item.id}
+                            onClick={() => handleSelectGalleryItem(field.key, item)}
+                            className={`group relative rounded-xl overflow-hidden cursor-pointer border-2 transition-all duration-150 bg-white ${
+                              isSelected
+                                ? 'border-indigo-600 shadow-md ring-2 ring-indigo-100 scale-102'
+                                : 'border-slate-200 hover:border-indigo-300 hover:shadow-xs'
+                            }`}
+                          >
+                            <div className="aspect-4/3 w-full bg-slate-100 overflow-hidden relative">
+                              <img
+                                src={item.url}
+                                alt={item.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                              />
+                              {isSelected && (
+                                <div className="absolute inset-0 bg-indigo-600/20 flex items-center justify-center">
+                                  <span className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-xs">
+                                    <Check className="w-4 h-4 stroke-[3]" />
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="p-1.5 text-center">
+                              <p className={`text-[10px] font-bold truncate ${isSelected ? 'text-indigo-700' : 'text-slate-700'}`}>
+                                {item.name}
+                              </p>
+                              {item.badge && (
+                                <span className="text-[9px] text-slate-400">{item.badge}</span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
 
-                        {/* Direct File Upload button */}
+                    {/* Ixtiyoriy: O'z rasmini kiritish yoki fayl yuklash */}
+                    <details className="text-xs text-slate-500 pt-1">
+                      <summary className="cursor-pointer font-medium hover:text-indigo-600 select-none">
+                        Boshqa rasm havolasini yozish yoki kompyuterdan fayl yuklash
+                      </summary>
+                      <div className="mt-2.5 flex flex-col sm:flex-row items-center gap-2 pt-2 border-t border-slate-200">
+                        <input
+                          type="url"
+                          value={currentVal}
+                          placeholder="Rasm internet havolasi (https://...)"
+                          onChange={(e) => handleInputChange(field.key, e.target.value, 'image')}
+                          className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+
                         <input
                           type="file"
                           accept="image/*"
@@ -321,169 +427,43 @@ export default function DynamicForm({ templates, selectedTemplateId, setSelected
                           type="button"
                           disabled={isUploading}
                           onClick={() => fileInputRefs.current[field.key]?.click()}
-                          className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-purple-600/20 hover:bg-purple-600/30 text-purple-200 border border-purple-500/30 transition-all shrink-0 active:scale-95"
+                          className="w-full sm:w-auto inline-flex items-center justify-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 shrink-0"
                         >
-                          {isUploading ? (
-                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <Upload className="w-3.5 h-3.5" />
-                          )}
-                          <span>{isUploading ? 'Uploading...' : 'Upload File'}</span>
+                          <Upload className="w-3.5 h-3.5" />
+                          <span>{isUploading ? 'Yuklanmoqda...' : 'Fayl yuklash'}</span>
                         </button>
                       </div>
-
-                      {/* Stock Preset Picker */}
-                      <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                        <span className="text-[10px] text-slate-500 mr-1">Presets:</span>
-                        {STOCK_IMAGES.map((img) => (
-                          <button
-                            key={img.name}
-                            type="button"
-                            onClick={() => handleInputChange(field.key, img.url, 'image')}
-                            className="px-2 py-0.5 rounded-lg text-[10px] bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-white/[0.05] transition-colors"
-                          >
-                            {img.name}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                    </details>
                   </div>
-                </div>
-              );
-            }
+                );
+              })}
+            </div>
+          </div>
+        )}
 
-            // 2. BOOLEAN TOGGLE
-            if (field.type === 'boolean') {
-              return (
-                <div key={field.key} className="bg-slate-950/40 border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between">
-                  <div>
-                    <label className="text-xs font-semibold text-slate-200 flex items-center space-x-1.5">
-                      <span>{field.name}</span>
-                      {field.required && <span className="text-rose-400">*</span>}
-                    </label>
-                    <span className="text-[10px] font-mono text-slate-500">{field.key} (true / false)</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleInputChange(field.key, !val, 'boolean')}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                      val ? 'bg-indigo-600 shadow-md shadow-indigo-600/30' : 'bg-slate-800'
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        val ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                    />
-                  </button>
-                </div>
-              );
-            }
-
-            // 3. COLOR PICKER
-            if (field.type === 'color') {
-              return (
-                <div key={field.key} className="bg-slate-950/40 border border-white/[0.06] rounded-2xl p-3.5 space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-slate-300 flex items-center space-x-1.5">
-                      <Palette className="w-3.5 h-3.5 text-pink-400" />
-                      <span>{field.name}</span>
-                    </label>
-                    <span className="text-[10px] font-mono text-slate-500">{val || '#000000'}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="color"
-                      value={val || '#6366f1'}
-                      onChange={(e) => handleInputChange(field.key, e.target.value, 'color')}
-                      className="w-10 h-8 rounded-lg bg-transparent border-0 cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={val}
-                      onChange={(e) => handleInputChange(field.key, e.target.value, 'color')}
-                      placeholder="#6366f1"
-                      className="w-full bg-slate-900 border border-white/[0.08] rounded-xl px-3 py-1.5 text-xs text-slate-200 font-mono"
-                    />
-                  </div>
-                </div>
-              );
-            }
-
-            // 4. TEXTAREA
-            if (field.type === 'textarea') {
-              return (
-                <div key={field.key} className="md:col-span-2 lg:col-span-3 space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-slate-300">
-                      {field.name} {field.required && <span className="text-rose-400">*</span>}
-                    </label>
-                    <span className="text-[10px] font-mono text-slate-500">{field.key} : textarea</span>
-                  </div>
-                  <textarea
-                    rows={3}
-                    value={val}
-                    required={field.required}
-                    placeholder={`Enter ${field.name}...`}
-                    onChange={(e) => handleInputChange(field.key, e.target.value, 'textarea')}
-                    className="w-full bg-slate-950/60 border border-white/[0.08] rounded-2xl p-3.5 text-xs text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-                  />
-                </div>
-              );
-            }
-
-            // 5. STANDARD INPUTS (text, number, email, date)
-            return (
-              <div key={field.key} className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-slate-300 flex items-center space-x-1">
-                    <span>{field.name}</span>
-                    {field.required && <span className="text-rose-400">*</span>}
-                  </label>
-                  <span className="text-[10px] font-mono text-slate-500">
-                    {field.key} : {field.type}
-                  </span>
-                </div>
-                <input
-                  type={field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : field.type === 'email' ? 'email' : 'text'}
-                  value={val}
-                  required={field.required}
-                  placeholder={`Enter ${field.name}...`}
-                  onChange={(e) => handleInputChange(field.key, e.target.value, field.type)}
-                  className="w-full bg-slate-950/60 border border-white/[0.08] rounded-2xl px-4 py-2.5 text-xs text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-                />
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Elegant Action Button */}
-        <div className="mt-8 pt-6 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-xs text-slate-400 flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-            <span>Generates dynamic JSON endpoint ready for Fetch API</span>
+        {/* 4. API Yaratish tugmasi */}
+        <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-xs text-slate-500 flex items-center space-x-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span>Ma'lumotlar real PostgreSQL bazasiga yoziladi va o'quvchiga individual endpoint beriladi</span>
           </div>
 
-          {/* Premium Glowing Gradient Button */}
           <button
             type="submit"
             disabled={loading}
-            className="group relative inline-flex items-center justify-center p-0.5 rounded-2xl overflow-hidden font-bold transition-all duration-300 shadow-xl shadow-indigo-500/20 hover:shadow-indigo-500/40 active:scale-95 disabled:opacity-50"
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2.5 px-8 py-3 rounded-xl font-bold text-sm text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm active:scale-95 transition-all disabled:opacity-50"
           >
-            <span className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 group-hover:opacity-100 opacity-90 transition-opacity" />
-            <span className="relative px-8 py-3.5 rounded-[14px] bg-[#0c101d] transition-colors group-hover:bg-opacity-80 flex items-center space-x-3 text-sm text-white font-extrabold tracking-wide">
-              {loading ? (
-                <>
-                  <RefreshCw className="w-4 h-4 animate-spin text-indigo-400" />
-                  <span>Generating Dynamic API...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
-                  <span>Generate API Endpoint</span>
-                </>
-              )}
-            </span>
+            {loading ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                <span>API Yaratilmoqda...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                <span>API Endpointni Generatsiya Qilish</span>
+              </>
+            )}
           </button>
         </div>
       </form>

@@ -4,25 +4,25 @@
 
 @layer base {
   body {
-    @apply bg-[#0a0d14] text-slate-200;
+    @apply bg-slate-50 text-slate-800 antialiased;
   }
 }
 
-/* Custom scrollbars */
+/* Toza va silliq scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #f1f5f9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #94a3b8;
 }
