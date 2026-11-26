@@ -18,6 +18,7 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+app.options('*', cors());
 
 // Increase limit to 25mb for image uploads & rich data
 app.use(express.json({ limit: '25mb' }));

@@ -1,18 +1,30 @@
 // API Client helper
-const BASE_URL = import.meta.env.VITE_API_URL || '';
+const RAW_BASE_URL = (import.meta.env.VITE_API_URL || '').trim();
+
+// Avtomatik ravishda https:// qo'shish va ortiqcha slashlarni tozalash
+const formatBaseUrl = (url) => {
+  if (!url) return '';
+  let clean = url.trim().replace(/\/+$/, '');
+  if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+    clean = `https://${clean}`;
+  }
+  return clean;
+};
+
+const BASE_URL = formatBaseUrl(RAW_BASE_URL);
 
 export const getApiUrl = (path = '') => {
-  if (path.startsWith('http')) return path;
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   if (BASE_URL) {
-    return `${BASE_URL.replace(/\/$/, '')}${cleanPath}`;
+    return `${BASE_URL}${cleanPath}`;
   }
   return cleanPath;
 };
 
 export const getFullApiUrl = (path = '') => {
   const rel = getApiUrl(path);
-  if (rel.startsWith('http')) return rel;
+  if (rel.startsWith('http://') || rel.startsWith('https://')) return rel;
   return `${window.location.origin}${rel}`;
 };
 
