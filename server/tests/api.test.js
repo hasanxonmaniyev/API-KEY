@@ -65,6 +65,19 @@ test('Homework Collections API: GET, POST items, smart stats and unique avatars'
   const detailJson = await getDetail.json();
   assert.strictEqual(detailJson.name, 'Otabek Ganiyev');
 
+  // 3b. Direct user endpoint (GET /api/collections/oquvchilar/1) just like jsonplaceholder
+  const directStudentRes = await fetch(`${baseUrl}/api/collections/oquvchilar/1`);
+  assert.strictEqual(directStudentRes.status, 200);
+  const directText = await directStudentRes.text();
+  // Verify multi-line indentation format:
+  assert.ok(directText.includes('\n'), 'JSON response must be pretty-printed with line breaks');
+  const directStudent = JSON.parse(directText);
+  assert.strictEqual(directStudent.name, 'Ali Valiyev');
+  assert.strictEqual(directStudent.email, 'ali@gmail.com');
+  assert.ok(directStudent.phone, 'Student must have phone');
+  assert.strictEqual(directStudent.address.city, 'Toshkent');
+  assert.ok(directStudent.avatar, 'Student must have avatar');
+
   // 4. Update student (PUT)
   const putRes = await fetch(`${baseUrl}/api/collections/oquvchilar/items/${newId}`, {
     method: 'PUT',

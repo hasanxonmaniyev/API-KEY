@@ -13,6 +13,9 @@ const collectionsRoute = require('./routes/collections');
 const app = express();
 const PORT = process.env.PORT || 5001;
 
+// Format JSON responses with 2 spaces indentation for clean readability in browsers
+app.set('json spaces', 2);
+
 // CORS setup - permit all frontend origins for educational Fetch API practice
 app.use(cors({
   origin: '*',

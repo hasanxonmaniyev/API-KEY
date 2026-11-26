@@ -16,4 +16,9 @@ router.get('/:idOrSlug/items/:itemId', collectionController.getItem);
 router.put('/:idOrSlug/items/:itemId', collectionController.updateItem);
 router.delete('/:idOrSlug/items/:itemId', collectionController.deleteItem);
 
+// Bitta elementni to'g'ridan-to'g'ri olish: /api/collections/oquvchilar/1 (jsonplaceholder uslubida)
+router.get('/:idOrSlug/:itemId', collectionController.getItem);
+router.put('/:idOrSlug/:itemId', collectionController.updateItem);
+router.delete('/:idOrSlug/:itemId', collectionController.deleteItem);
+
 module.exports = router;

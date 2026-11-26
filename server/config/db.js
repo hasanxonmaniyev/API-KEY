@@ -77,12 +77,18 @@ const defaultCollections = [
         lastName: 'Valiyev',
         name: 'Ali Valiyev',
         email: 'ali@gmail.com',
+        phone: '+998 90 123 45 67',
+        city: 'Toshkent',
+        address: {
+          city: 'Toshkent',
+          street: 'Amir Temur shoh ko\'chasi, 45-uy'
+        },
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=AliValiyev&backgroundColor=c0aede',
+        image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=AliValiyev&backgroundColor=c0aede',
         status: 'Faol',
         isActive: true,
         age: 21,
-        profession: 'Frontend Dasturchi',
-        city: 'Toshkent'
+        profession: 'Frontend Dasturchi'
       },
       {
         id: 2,
@@ -90,12 +96,18 @@ const defaultCollections = [
         lastName: 'Karimova',
         name: 'Madina Karimova',
         email: 'madina@gmail.com',
+        phone: '+998 93 456 78 90',
+        city: 'Samarqand',
+        address: {
+          city: 'Samarqand',
+          street: 'Registon ko\'chasi, 12-uy'
+        },
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=MadinaKarimova&backgroundColor=b6e3f4',
+        image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=MadinaKarimova&backgroundColor=b6e3f4',
         status: 'Faol',
         isActive: true,
         age: 20,
-        profession: 'UI/UX Dizayner',
-        city: 'Samarqand'
+        profession: 'UI/UX Dizayner'
       },
       {
         id: 3,
@@ -103,12 +115,18 @@ const defaultCollections = [
         lastName: 'Raximov',
         name: 'Behzod Raximov',
         email: 'behzod@gmail.com',
+        phone: '+998 97 789 01 23',
+        city: 'Buxoro',
+        address: {
+          city: 'Buxoro',
+          street: 'Mustaqillik ko\'chasi, 8-uy'
+        },
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=BehzodRaximov&backgroundColor=ffd5dc',
+        image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=BehzodRaximov&backgroundColor=ffd5dc',
         status: 'Fa\'olsiz',
         isActive: false,
         age: 23,
-        profession: 'Backend Dasturchi',
-        city: 'Buxoro'
+        profession: 'Backend Dasturchi'
       },
       {
         id: 4,
@@ -116,12 +134,18 @@ const defaultCollections = [
         lastName: 'To\'xtayev',
         name: 'Sardor To\'xtayev',
         email: 'sardor@gmail.com',
+        phone: '+998 99 234 56 78',
+        city: 'Farg\'ona',
+        address: {
+          city: 'Farg\'ona',
+          street: 'Al-Farg\'oniy ko\'chasi, 19-uy'
+        },
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=SardorToxtayev&backgroundColor=d1d4f9',
+        image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=SardorToxtayev&backgroundColor=d1d4f9',
         status: 'Faol',
         isActive: true,
         age: 22,
-        profession: 'Full-Stack Muhandis',
-        city: 'Farg\'ona'
+        profession: 'Full-Stack Muhandis'
       },
       {
         id: 5,
@@ -129,12 +153,18 @@ const defaultCollections = [
         lastName: 'Azimova',
         name: 'Dilnoza Azimova',
         email: 'dilnoza@gmail.com',
+        phone: '+998 91 345 67 89',
+        city: 'Toshkent',
+        address: {
+          city: 'Toshkent',
+          street: 'Chilonzor 9-mavze, 2-uy'
+        },
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=DilnozaAzimova&backgroundColor=ffdfbf',
+        image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=DilnozaAzimova&backgroundColor=ffdfbf',
         status: 'Faol',
         isActive: true,
         age: 19,
-        profession: 'Mobil Dasturchi',
-        city: 'Toshkent'
+        profession: 'Mobil Dasturchi'
       },
       {
         id: 6,
@@ -142,12 +172,18 @@ const defaultCollections = [
         lastName: 'Mirzayev',
         name: 'Jasur Mirzayev',
         email: 'jasur@gmail.com',
+        phone: '+998 94 567 89 01',
+        city: 'Andijon',
+        address: {
+          city: 'Andijon',
+          street: 'Bobur shoh ko\'chasi, 55-uy'
+        },
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=JasurMirzayev&backgroundColor=c0aede',
+        image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=JasurMirzayev&backgroundColor=c0aede',
         status: 'Fa\'olsiz',
         isActive: false,
         age: 24,
-        profession: 'QA Muhandis',
-        city: 'Andijon'
+        profession: 'QA Muhandis'
       }
     ],
     created_at: new Date().toISOString(),

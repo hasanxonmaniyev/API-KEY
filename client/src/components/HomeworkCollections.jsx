@@ -134,6 +134,10 @@ export default function HomeworkCollections({ onTestApi }) {
     ? getFullApiUrl(`/api/collections/${selectedCollection.slug || selectedCollection.id}`) 
     : '';
 
+  const singleUserEndpoint = selectedCollection
+    ? `${fullEndpoint}/1`
+    : '';
+
   return (
     <div className="space-y-6">
       {/* 1. Sarlavha Paneli */}
@@ -218,39 +222,69 @@ export default function HomeworkCollections({ onTestApi }) {
       {/* 3. Asosiy Tanlangan Vazifa Ko'rinishi (Skyline Education skrinshoti kabi) */}
       {selectedCollection && (
         <div className="space-y-6">
-          {/* Vazifaning O'quvchilarga beriladigan Fetch havolasi banneri */}
-          <div className="bg-indigo-50/70 border border-indigo-200 rounded-2xl p-5 space-y-3">
+          {/* Vazifaning O'quvchilarga beriladigan Fetch havolalari banneri */}
+          <div className="bg-indigo-50/70 border border-indigo-200 rounded-2xl p-5 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-700">
-                  O'quvchilarga beriladigan Fetch API havolasi:
+                  O'quvchilarga beriladigan Fetch API havolalari:
                 </span>
                 <h3 className="text-sm font-bold text-slate-900">{selectedCollection.title}</h3>
               </div>
 
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold self-start sm:self-auto">
                 Tayyor REST API
               </span>
             </div>
 
-            {/* URL nusxalash qatori */}
-            <div className="flex items-center space-x-2 bg-white border border-indigo-200 rounded-xl p-2 shadow-2xs">
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-600 text-white font-mono shrink-0">
-                GET
+            {/* 1. Bitta o'quvchi havolasi (Darsdagi misol: jsonplaceholder kabi) */}
+            <div className="space-y-1">
+              <span className="text-[11px] font-bold text-slate-600">
+                1. Bitta o'quvchi ma'lumoti (darsdagi HTML card uchun):
               </span>
-              <input
-                readOnly
-                value={fullEndpoint}
-                className="w-full bg-transparent text-xs font-mono text-indigo-900 focus:outline-none select-all"
-              />
-              <button
-                type="button"
-                onClick={() => handleCopy(fullEndpoint, 'main-url')}
-                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-xs shrink-0"
-              >
-                {copiedUrl === 'main-url' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copiedUrl === 'main-url' ? 'Nusxalandi!' : 'Havolani nusxalash'}</span>
-              </button>
+              <div className="flex items-center space-x-2 bg-white border border-indigo-200 rounded-xl p-2 shadow-2xs">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-600 text-white font-mono shrink-0">
+                  GET
+                </span>
+                <input
+                  readOnly
+                  value={singleUserEndpoint}
+                  className="w-full bg-transparent text-xs font-mono text-indigo-900 focus:outline-none select-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleCopy(singleUserEndpoint, 'single-url')}
+                  className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-xs shrink-0"
+                >
+                  {copiedUrl === 'single-url' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedUrl === 'single-url' ? 'Nusxalandi!' : 'Havolani nusxalash'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 2. Barcha o'quvchilar va statistika */}
+            <div className="space-y-1">
+              <span className="text-[11px] font-bold text-slate-600">
+                2. Barcha o'quvchilar ro'yxati va umumiy statistika (Jami, Faol, Fa'olsizlar):
+              </span>
+              <div className="flex items-center space-x-2 bg-white border border-indigo-200 rounded-xl p-2 shadow-2xs">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-white font-mono shrink-0">
+                  GET
+                </span>
+                <input
+                  readOnly
+                  value={fullEndpoint}
+                  className="w-full bg-transparent text-xs font-mono text-indigo-900 focus:outline-none select-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleCopy(fullEndpoint, 'main-url')}
+                  className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-700 hover:bg-slate-800 text-white transition-all shadow-xs shrink-0"
+                >
+                  {copiedUrl === 'main-url' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedUrl === 'main-url' ? 'Nusxalandi!' : 'Havolani nusxalash'}</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -269,11 +303,19 @@ export default function HomeworkCollections({ onTestApi }) {
               <div className="flex items-center space-x-2">
                 <button
                   type="button"
-                  onClick={() => onTestApi({ url: fullEndpoint, method: 'GET' })}
+                  onClick={() => onTestApi({ url: singleUserEndpoint, method: 'GET' })}
                   className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-xs"
                 >
                   <Play className="w-3 h-3 fill-white" />
-                  <span>Testerda sinash</span>
+                  <span>#1 O'quvchini sinash</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onTestApi({ url: fullEndpoint, method: 'GET' })}
+                  className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 shadow-xs"
+                >
+                  <Play className="w-3 h-3 fill-slate-700" />
+                  <span>Hammasini sinash</span>
                 </button>
               </div>
             </div>
@@ -324,6 +366,8 @@ export default function HomeworkCollections({ onTestApi }) {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
               {selectedCollection.items?.map((student) => {
                 const isFaol = student.status === 'Faol' || student.isActive === true;
+                const cityDisplay = student.address?.city || student.city || 'Toshkent';
+                const phoneDisplay = student.phone || '+998 90 123 45 67';
                 return (
                   <div
                     key={student.id}
@@ -346,6 +390,12 @@ export default function HomeworkCollections({ onTestApi }) {
                         <p className="text-xs text-slate-500 truncate font-mono">
                           {student.email}
                         </p>
+                        <p className="text-[11px] text-slate-500 truncate">
+                          📞 {phoneDisplay}
+                        </p>
+                        <p className="text-[11px] text-slate-500 truncate">
+                          📍 {cityDisplay}
+                        </p>
                         <div className="pt-1">
                           <span className={`inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
                             isFaol 
@@ -362,7 +412,7 @@ export default function HomeworkCollections({ onTestApi }) {
                       <span>ID: #{student.id}</span>
                       <button
                         type="button"
-                        onClick={() => onTestApi({ url: `${fullEndpoint}/items/${student.id}`, method: 'GET' })}
+                        onClick={() => onTestApi({ url: `${fullEndpoint}/${student.id}`, method: 'GET' })}
                         className="text-xs font-semibold text-slate-700 hover:text-indigo-600 flex items-center space-x-1"
                       >
                         <span>Batafsil</span>
@@ -375,30 +425,69 @@ export default function HomeworkCollections({ onTestApi }) {
             </div>
 
             {/* O'quvchilar uchun kod namunasi */}
-            <div className="pt-4 border-t border-slate-200 space-y-3">
+            <div className="pt-4 border-t border-slate-200 space-y-4">
               <div className="flex items-center space-x-2 text-xs font-bold text-slate-700">
                 <Code2 className="w-4 h-4 text-indigo-600" />
-                <span>O'quvchilar ushbu API'ni o'z saytiga qanday ulaydi (JavaScript Fetch):</span>
+                <span>O'quvchilar darsdagi kabi ushbu API'ni qanday ulaydi (JavaScript Fetch):</span>
               </div>
-              <pre className="bg-slate-900 text-emerald-400 p-4 rounded-xl text-xs font-mono overflow-x-auto leading-relaxed shadow-inner">
-{`// O'quvchilar sayti (masalan, Skyline Education sahifasida)
-async function getStudentsData() {
-  const response = await fetch('${fullEndpoint}');
-  const data = await response.json();
 
-  // 1. Statistikani chiqarish
-  console.log('Jami o\\'quvchilar:', data.stats.total);
-  console.log('Faol o\\'quvchilar:', data.stats.active);
-  console.log('Fa\\'olsizlar:', data.stats.inactive);
+              {/* 1-Kod namunasi: Bitta o'quvchi kartochkasi */}
+              <div className="space-y-1.5">
+                <span className="text-[11px] font-bold text-slate-600">
+                  A) Bitta foydalanuvchi ma'lumotlarini DOM'ga chiqarish (Darsdagi vazifa):
+                </span>
+                <pre className="bg-slate-900 text-emerald-400 p-4 rounded-xl text-xs font-mono overflow-x-auto leading-relaxed shadow-inner">
+{`const name = document.getElementById("name");
+const email = document.getElementById("email");
+const phone = document.getElementById("phone");
+const city = document.getElementById("city");
+const avatar = document.getElementById("avatar");
 
-  // 2. Har bir o'quvchi kartochkasini ekranga chizish
-  data.items.forEach(student => {
-    console.log(student.name, student.email, student.avatar, student.status);
-  });
-}
+// jsonplaceholder o'rniga o'z API'miz:
+fetch("${singleUserEndpoint}")
+  .then(function(response) {
+    return response.json();
+  })
+  .then(function(data) {
+    console.log(data);
+    name.innerText = data.name;
+    email.innerText = data.email;
+    phone.innerText = data.phone;
+    city.innerText = data.address.city; // yoki data.city
+    if (avatar) avatar.src = data.avatar;
+  })
+  .catch(function(error) {
+    console.log("Xatolik:", error);
+  });`}
+                </pre>
+              </div>
 
-getStudentsData();`}
-              </pre>
+              {/* 2-Kod namunasi: 6 ta o'quvchining hammasini chiqarish */}
+              <div className="space-y-1.5">
+                <span className="text-[11px] font-bold text-slate-600">
+                  B) Barcha 6 ta o'quvchi va umumiy statistikani chiqarish:
+                </span>
+                <pre className="bg-slate-900 text-cyan-300 p-4 rounded-xl text-xs font-mono overflow-x-auto leading-relaxed shadow-inner">
+{`fetch("${fullEndpoint}")
+  .then(function(response) {
+    return response.json();
+  })
+  .then(function(data) {
+    // 1. Statistika
+    console.log("Jami o'quvchilar:", data.stats.total);
+    console.log("Faol o'quvchilar:", data.stats.active);
+    console.log("Fa'olsizlar:", data.stats.inactive);
+
+    // 2. Har bir o'quvchi ma'lumotlari
+    data.items.forEach(function(student) {
+      console.log(student.id, student.name, student.email, student.phone, student.city, student.avatar, student.status);
+    });
+  })
+  .catch(function(error) {
+    console.log("Xatolik:", error);
+  });`}
+                </pre>
+              </div>
             </div>
           </div>
         </div>
