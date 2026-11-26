@@ -4,6 +4,7 @@
   "description": "Educational Dynamic REST API Generator for Programming Students",
   "scripts": {
     "start": "node server/index.js",
+    "build": "npm run install:all && npm run build:client",
     "server": "cd server && npm run dev",
     "client": "cd client && npm run dev",
     "build:client": "cd client && npm run build",
