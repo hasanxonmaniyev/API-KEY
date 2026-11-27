@@ -225,5 +225,6 @@ VALUES
 )
 ON CONFLICT (id) DO NOTHING;
 
--- Reset sequence for collections
+-- Reset sequences (seed rows use explicit ids, so SERIAL counters must be moved past them)
+SELECT setval('templates_id_seq', (SELECT COALESCE(MAX(id), 1) FROM templates));
 SELECT setval('collections_id_seq', (SELECT COALESCE(MAX(id), 1) FROM collections));

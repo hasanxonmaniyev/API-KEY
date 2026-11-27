@@ -106,14 +106,16 @@ app.use('/api/data', dataRoute);
 app.use('/api/stats', statsRoute);
 app.use('/api/collections', collectionsRoute);
 
+// Unknown API routes (any method) -> JSON 404 instead of Express' HTML page
+app.use('/api', (req, res) => {
+  res.status(404).json({ success: false, message: `Endpoint ${req.method} ${req.originalUrl} not found` });
+});
+
 // Serve frontend build if present (for single Railway service deployments)
 const clientDistPath = path.join(__dirname, '..', 'client', 'dist');
 app.use(express.static(clientDistPath));
 
 app.get('*', (req, res, next) => {
-  if (req.originalUrl.startsWith('/api')) {
-    return res.status(404).json({ success: false, message: `Endpoint ${req.originalUrl} not found` });
-  }
   const indexPath = path.join(clientDistPath, 'index.html');
   res.sendFile(indexPath, err => {
     if (err) next();

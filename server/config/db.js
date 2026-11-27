@@ -207,7 +207,16 @@ function loadLocalData() {
   try {
     if (fs.existsSync(localStoreFile)) {
       const content = fs.readFileSync(localStoreFile, 'utf8');
-      localData = JSON.parse(content);
+      const saved = JSON.parse(content);
+      // Merge with defaults so stores written by older versions (e.g. without collections) keep working
+      localData = {
+        ...localData,
+        ...saved,
+        templates: saved.templates || localData.templates,
+        records: saved.records || [],
+        users: saved.users || [],
+        collections: saved.collections || localData.collections
+      };
     }
   } catch (err) {
     console.warn('[DB Fallback] Could not read local store, using in-memory defaults:', err.message);
@@ -224,6 +233,17 @@ function saveLocalData() {
 
 loadLocalData();
 
+// Decide whether to use SSL. Local hosts and Railway's private network
+// (*.railway.internal) do not accept SSL; public proxies (e.g. *.proxy.rlwy.net) require it.
+function resolveSsl(connectionString) {
+  const mode = (process.env.PGSSLMODE || '').toLowerCase();
+  if (mode === 'disable') return false;
+  if (/sslmode=disable/i.test(connectionString)) return false;
+  if (mode === 'require' || /sslmode=require/i.test(connectionString)) return { rejectUnauthorized: false };
+  if (/@(localhost|127\.0\.0\.1|[^/:@]+\.railway\.internal)(:|\/)/i.test(connectionString)) return false;
+  return { rejectUnauthorized: false };
+}
+
 // Initialize PostgreSQL connection
 async function initDb() {
   const connectionString = process.env.DATABASE_URL;
@@ -238,9 +258,7 @@ async function initDb() {
   try {
     pool = new Pool({
       connectionString,
-      ssl: connectionString.includes('localhost') || connectionString.includes('127.0.0.1')
-        ? false
-        : { rejectUnauthorized: false }
+      ssl: resolveSsl(connectionString)
     });
 
     // Test connection
