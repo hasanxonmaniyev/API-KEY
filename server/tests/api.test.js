@@ -115,3 +115,67 @@ test('POST /api/users should create a user and return 201', async () => {
   assert.strictEqual(json.success, true);
   assert.strictEqual(json.data.firstName, 'Hasan');
 });
+
+test('Resources: user-entered JSON is served as a clean array at /api/:slug', async () => {
+  const json = (r) => r.json();
+  const send = (method, path, body) => fetch(`${baseUrl}${path}`, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body === undefined ? undefined : JSON.stringify(body)
+  });
+  const slug = `test-users-${Date.now()}`;
+  const items = [
+    {
+      id: 1, name: 'Leanne Graham', username: 'Bret', email: 'Sincere@april.biz',
+      address: { street: 'Kulas Light', suite: 'Apt. 556', city: 'Gwenborough', zipcode: '92998-3874', geo: { lat: '-37.3159', lng: '81.1496' } },
+      phone: '1-770-736-8031 x56442', website: 'hildegard.org',
+      company: { name: 'Romaguera-Crona', catchPhrase: 'Multi-layered client-server neural-net', bs: 'harness real-time e-markets' }
+    },
+    { id: 2, name: 'Ervin Howell', username: 'Antonette', address: { geo: { lat: '-43.9509', lng: '-34.4618' } } }
+  ];
+
+  // Reserved and invalid input
+  assert.strictEqual((await send('POST', '/api/resources', { title: 'Users', slug: 'users', items })).status, 400);
+  assert.strictEqual((await send('POST', '/api/resources', { title: 'Bad', slug, items: { a: 1 } })).status, 400);
+
+  const created = await send('POST', '/api/resources', { title: 'Test users', slug, items });
+  assert.strictEqual(created.status, 201);
+  assert.strictEqual((await json(created)).data.endpoint, `/api/${slug}`);
+  assert.strictEqual((await send('POST', '/api/resources', { title: 'Dup', slug, items })).status, 409);
+
+  // Clean array, exactly as entered (no extra fields)
+  const list = await send('GET', `/api/${slug}`);
+  assert.strictEqual(list.status, 200);
+  assert.deepStrictEqual(await json(list), items);
+
+  assert.deepStrictEqual(await json(await send('GET', `/api/${slug}/1`)), items[0]);
+  assert.deepStrictEqual(await json(await send('GET', `/api/${slug}?username=Antonette`)), [items[1]]);
+  assert.strictEqual((await send('GET', `/api/${slug}/99`)).status, 404);
+
+  // CRUD like JSONPlaceholder
+  const added = await send('POST', `/api/${slug}`, { name: 'Clementine Bauch' });
+  assert.strictEqual(added.status, 201);
+  assert.deepStrictEqual(await json(added), { id: 3, name: 'Clementine Bauch' });
+
+  const patched = await json(await send('PATCH', `/api/${slug}/3`, { username: 'Samantha' }));
+  assert.deepStrictEqual(patched, { id: 3, name: 'Clementine Bauch', username: 'Samantha' });
+
+  const replaced = await json(await send('PUT', `/api/${slug}/3`, { name: 'Only name' }));
+  assert.deepStrictEqual(replaced, { id: 3, name: 'Only name' });
+
+  assert.strictEqual((await send('DELETE', `/api/${slug}/3`)).status, 200);
+  assert.strictEqual((await json(await send('GET', `/api/${slug}`))).length, 2);
+
+  // Replace whole list from the editor; items without id get one
+  const saved = await json(await send('PUT', `/api/resources/${slug}`, { items: [{ name: 'A' }, { id: 7, name: 'B' }, { name: 'C' }] }));
+  assert.deepStrictEqual(saved.data.items.map(i => i.id), [8, 7, 9]);
+
+  // Existing fixed APIs are not shadowed, unknown slugs are JSON 404
+  assert.strictEqual((await send('GET', '/api/health')).status, 200);
+  const missing = await send('GET', '/api/no-such-api-here');
+  assert.strictEqual(missing.status, 404);
+  assert.strictEqual((await json(missing)).success, false);
+
+  assert.strictEqual((await send('DELETE', `/api/resources/${slug}`)).status, 200);
+  assert.strictEqual((await send('GET', `/api/${slug}`)).status, 404);
+});

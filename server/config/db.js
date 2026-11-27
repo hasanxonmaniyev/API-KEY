@@ -196,10 +196,12 @@ let localData = {
   recordSeq: 1,
   userSeq: 1,
   collectionSeq: 2,
+  resourceSeq: 1,
   templates: [...defaultTemplates],
   records: [],
   users: [],
-  collections: [...defaultCollections]
+  collections: [...defaultCollections],
+  resources: []
 };
 
 // Load saved local data if exists
@@ -215,7 +217,9 @@ function loadLocalData() {
         templates: saved.templates || localData.templates,
         records: saved.records || [],
         users: saved.users || [],
-        collections: saved.collections || localData.collections
+        collections: saved.collections || localData.collections,
+        resources: saved.resources || [],
+        resourceSeq: saved.resourceSeq || 1
       };
     }
   } catch (err) {
@@ -566,6 +570,52 @@ function handleFallbackQuery(text, params) {
       return { rows: [deleted] };
     }
     return { rows: [] };
+  }
+
+  // 17. RESOURCES (foydalanuvchi kiritgan toza ma'lumotlar)
+  if (/^SELECT\s+.*\s+FROM\s+resources/i.test(cleanSql)) {
+    if (cleanSql.includes('WHERE slug = $1')) {
+      const r = localData.resources.find(x => x.slug === String(params[0]));
+      return { rows: r ? [r] : [] };
+    }
+    return { rows: [...localData.resources].sort((a, b) => b.id - a.id) };
+  }
+
+  if (/^INSERT\s+INTO\s+resources/i.test(cleanSql)) {
+    const [slug, title, items] = params;
+    if (localData.resources.some(x => x.slug === slug)) {
+      const err = new Error('duplicate key value violates unique constraint "resources_slug_key"');
+      err.code = '23505';
+      throw err;
+    }
+    const now = new Date().toISOString();
+    const row = { id: localData.resourceSeq++, slug, title, items: JSON.parse(items), created_at: now, updated_at: now };
+    localData.resources.push(row);
+    saveLocalData();
+    return { rows: [row] };
+  }
+
+  if (/^UPDATE\s+resources/i.test(cleanSql)) {
+    // UPDATE resources SET title = $1, items = $2, updated_at = NOW() WHERE slug = $3
+    const [title, items, slug] = params;
+    const idx = localData.resources.findIndex(x => x.slug === String(slug));
+    if (idx === -1) return { rows: [] };
+    localData.resources[idx] = {
+      ...localData.resources[idx],
+      title,
+      items: JSON.parse(items),
+      updated_at: new Date().toISOString()
+    };
+    saveLocalData();
+    return { rows: [localData.resources[idx]] };
+  }
+
+  if (/^DELETE\s+FROM\s+resources/i.test(cleanSql)) {
+    const idx = localData.resources.findIndex(x => x.slug === String(params[0]));
+    if (idx === -1) return { rows: [] };
+    const deleted = localData.resources.splice(idx, 1)[0];
+    saveLocalData();
+    return { rows: [deleted] };
   }
 
   // COUNT queries

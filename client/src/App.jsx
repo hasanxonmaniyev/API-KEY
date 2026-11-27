@@ -7,11 +7,12 @@ import ApiTester from './components/ApiTester';
 import Documentation from './components/Documentation';
 import ApiResultModal from './components/ApiResultModal';
 import HomeworkCollections from './components/HomeworkCollections';
+import MyApis from './components/MyApis';
 import { request } from './utils/api';
 import { Sparkles, Terminal, Layers, Code, Heart, Github, Rocket, ArrowRight, ShieldCheck, GraduationCap } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('homework'); // 'homework' | 'generator' | 'explorer' | 'admin' | 'tester' | 'docs'
+  const [activeTab, setActiveTab] = useState('myapis'); // 'myapis' | 'homework' | 'generator' | 'explorer' | 'admin' | 'tester' | 'docs'
   const [templates, setTemplates] = useState([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   const [stats, setStats] = useState(null);
@@ -67,6 +68,13 @@ export default function App() {
 
       {/* Asosiy Ish Maydoni */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 0. Mening API'larim: o'z ma'lumotlaringizdan toza JSON API */}
+        {activeTab === 'myapis' && (
+          <div className="animate-in fade-in duration-200">
+            <MyApis onTestApi={handleTestApi} />
+          </div>
+        )}
+
         {/* 1. Dars Vazifalari (Homework APIs) - Asosiy ustuvor bo'lim */}
         {activeTab === 'homework' && (
           <div className="animate-in fade-in duration-200">

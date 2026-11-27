@@ -1,8 +1,9 @@
 import React from 'react';
-import { Sparkles, Terminal, Layers, BookOpen, Activity, Database, CheckCircle2, GraduationCap } from 'lucide-react';
+import { Sparkles, Terminal, Layers, BookOpen, Activity, Database, CheckCircle2, GraduationCap, Braces } from 'lucide-react';
 
 export default function Navbar({ activeTab, setActiveTab, stats, onRefreshStats }) {
   const tabs = [
+    { id: 'myapis', label: "Mening API'larim", icon: Braces },
     { id: 'homework', label: 'Dars Vazifalari', icon: GraduationCap },
     { id: 'generator', label: 'API Yaratish', icon: Sparkles },
     { id: 'explorer', label: 'Barcha API\'lar', icon: Terminal, badge: stats?.totalApisGenerated },
@@ -18,7 +19,7 @@ export default function Navbar({ activeTab, setActiveTab, stats, onRefreshStats 
           {/* Logo & Tizim nomi */}
           <div 
             className="flex items-center space-x-3 cursor-pointer select-none" 
-            onClick={() => setActiveTab('homework')}
+            onClick={() => setActiveTab('myapis')}
           >
             <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-sm">
               <Terminal className="w-5 h-5 stroke-[2.2]" />

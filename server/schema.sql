@@ -228,3 +228,13 @@ ON CONFLICT (id) DO NOTHING;
 -- Reset sequences (seed rows use explicit ids, so SERIAL counters must be moved past them)
 SELECT setval('templates_id_seq', (SELECT COALESCE(MAX(id), 1) FROM templates));
 SELECT setval('collections_id_seq', (SELECT COALESCE(MAX(id), 1) FROM collections));
+
+-- 5. Resources Table (Foydalanuvchi o'zi kiritgan ma'lumotlar: /api/:slug toza JSON massiv qaytaradi)
+CREATE TABLE IF NOT EXISTS resources (
+  id SERIAL PRIMARY KEY,
+  slug VARCHAR(100) UNIQUE NOT NULL,
+  title VARCHAR(150) NOT NULL,
+  items JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);

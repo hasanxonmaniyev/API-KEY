@@ -9,6 +9,7 @@ const templatesRoute = require('./routes/templates');
 const dataRoute = require('./routes/data');
 const statsRoute = require('./routes/stats');
 const collectionsRoute = require('./routes/collections');
+const resourcesRoute = require('./routes/resources');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -19,7 +20,7 @@ app.set('json spaces', 2);
 // CORS setup - permit all frontend origins for educational Fetch API practice
 app.use(cors({
   origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 app.options('*', cors());
@@ -105,6 +106,10 @@ app.use('/api/templates', templatesRoute);
 app.use('/api/data', dataRoute);
 app.use('/api/stats', statsRoute);
 app.use('/api/collections', collectionsRoute);
+app.use('/api/resources', resourcesRoute.manage);
+
+// Foydalanuvchi yaratgan API'lar: /api/:slug va /api/:slug/:id (yuqoridagi yo'nalishlardan keyin turishi shart)
+app.use('/api', resourcesRoute.publicApi);
 
 // Unknown API routes (any method) -> JSON 404 instead of Express' HTML page
 app.use('/api', (req, res) => {
